@@ -9,10 +9,7 @@ public class JenkinsSpringApplication {
   public static void main(String[] args) {
     SpringApplication.run(JenkinsSpringApplication.class, args);
     System.out.println(123);
-    System.out.println(123);
-    System.out.println(123);
-    System.out.println(123);
-    System.out.println(123);
+
   }
 
 }
