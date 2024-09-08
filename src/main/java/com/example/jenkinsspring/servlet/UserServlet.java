@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserServlet extends HttpServlet {
+
   private Connection connection;
 
   @Override
@@ -24,7 +25,11 @@ public class UserServlet extends HttpServlet {
       connection = DriverManager.getConnection(
           "jdbc:postgresql://192.168.64.5:5432/mydatabase", "myuser", "mypassword");
       connection.setAutoCommit(false); // Disable auto-commit
-      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); // Set default isolation level
+      connection.setTransactionIsolation(
+          Connection.TRANSACTION_READ_UNCOMMITTED); // Set default isolation level
+      //connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); // Set default isolation level
+      //connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); // Set default isolation level
+      //connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Set default isolation level
     } catch (ClassNotFoundException | SQLException e) {
       throw new ServletException("Cannot connect to database", e);
     }
@@ -32,12 +37,14 @@ public class UserServlet extends HttpServlet {
 
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     displayUsers(req, resp); // Display the user list when GET request is made
   }
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     String action = req.getParameter("action");
 
     try {
@@ -83,7 +90,6 @@ public class UserServlet extends HttpServlet {
 
   private void updateUser(HttpServletRequest req) throws SQLException {
 
-
     long id = Long.parseLong(req.getParameter("id"));
     String firstName = req.getParameter("firstName");
     String lastName = req.getParameter("lastName");
@@ -110,7 +116,8 @@ public class UserServlet extends HttpServlet {
     }
   }
 
-  private void displayUsers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  private void displayUsers(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     List<User> userList = new ArrayList<>();
 
     String sql = "SELECT id, first_name, last_name, age FROM users";
