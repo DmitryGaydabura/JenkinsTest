@@ -16,13 +16,22 @@ import java.util.List;
 
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
+
   private static final String DB_URL = "jdbc:postgresql://192.168.64.5:5432/mydatabase";
   private static final String DB_USER = "myuser";
   private static final String DB_PASSWORD = "mypassword";
 
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
     List<User> users = new ArrayList<>();
+
+    try {
+      Class.forName("org.postgresql.Driver");
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException("Failed to load PostgreSQL driver", e);
+    }
+
     try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
         PreparedStatement statement = connection.prepareStatement("SELECT * FROM users");
         ResultSet resultSet = statement.executeQuery()) {
@@ -42,7 +51,8 @@ public class UserServlet extends HttpServlet {
   }
 
   @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
     String action = request.getParameter("action");
 
     if ("add".equals(action)) {
@@ -51,7 +61,8 @@ public class UserServlet extends HttpServlet {
       String surname = request.getParameter("surname");
 
       try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-          PreparedStatement statement = connection.prepareStatement("INSERT INTO users (name, age, surname) VALUES (?, ?, ?)")) {
+          PreparedStatement statement = connection.prepareStatement(
+              "INSERT INTO users (name, age, surname) VALUES (?, ?, ?)")) {
 
         statement.setString(1, name);
         statement.setInt(2, age);
@@ -64,7 +75,8 @@ public class UserServlet extends HttpServlet {
       String name = request.getParameter("name");
 
       try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-          PreparedStatement statement = connection.prepareStatement("DELETE FROM users WHERE name = ?")) {
+          PreparedStatement statement = connection.prepareStatement(
+              "DELETE FROM users WHERE name = ?")) {
 
         statement.setString(1, name);
         statement.executeUpdate();
@@ -77,7 +89,8 @@ public class UserServlet extends HttpServlet {
       String surname = request.getParameter("surname");
 
       try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-          PreparedStatement statement = connection.prepareStatement("UPDATE users SET age = ?, surname = ? WHERE name = ?")) {
+          PreparedStatement statement = connection.prepareStatement(
+              "UPDATE users SET age = ?, surname = ? WHERE name = ?")) {
 
         statement.setInt(1, age);
         statement.setString(2, surname);
