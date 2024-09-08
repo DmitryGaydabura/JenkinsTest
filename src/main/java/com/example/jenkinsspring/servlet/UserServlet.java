@@ -117,7 +117,7 @@ public class UserServlet extends HttpServlet {
     List<User> userList = new ArrayList<>();
     // Set isolation level for this operation
     try {
-      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+      connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
