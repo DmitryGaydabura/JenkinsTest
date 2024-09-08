@@ -1,6 +1,7 @@
 package com.example.jenkinsspring.servlet;
 
 import javax.servlet.ServletException;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,7 +9,10 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserServlet extends HttpServlet {
   private Connection connection;
@@ -31,13 +35,13 @@ public class UserServlet extends HttpServlet {
     try {
       switch (action) {
         case "add":
-          addUser(req, resp);
+          addUser(req);
           break;
         case "update":
-          updateUser(req, resp);
+          updateUser(req);
           break;
         case "delete":
-          deleteUser(req, resp);
+          deleteUser(req);
           break;
         default:
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action");
@@ -45,49 +49,68 @@ public class UserServlet extends HttpServlet {
     } catch (SQLException e) {
       throw new ServletException(e);
     }
+    displayUsers(req, resp); // Redisplay users after action
   }
 
-  private void addUser(HttpServletRequest req, HttpServletResponse resp) throws SQLException, IOException {
-    String username = req.getParameter("username");
-    String password = req.getParameter("password");
-    String email = req.getParameter("email");
+  private void addUser(HttpServletRequest req) throws SQLException {
+    String firstName = req.getParameter("firstName");
+    String lastName = req.getParameter("lastName");
+    int age = Integer.parseInt(req.getParameter("age"));
 
-    String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+    String sql = "INSERT INTO users (first_name, last_name, age) VALUES (?, ?, ?)";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-      stmt.setString(1, username);
-      stmt.setString(2, password);
-      stmt.setString(3, email);
+      stmt.setString(1, firstName);
+      stmt.setString(2, lastName);
+      stmt.setInt(3, age);
       stmt.executeUpdate();
     }
-    resp.getWriter().write("Пользователь добавлен");
   }
 
-  private void updateUser(HttpServletRequest req, HttpServletResponse resp) throws SQLException, IOException {
-    String id = req.getParameter("id");
-    String username = req.getParameter("username");
-    String password = req.getParameter("password");
-    String email = req.getParameter("email");
+  private void updateUser(HttpServletRequest req) throws SQLException {
+    Long id = Long.parseLong(req.getParameter("id"));
+    String firstName = req.getParameter("firstName");
+    String lastName = req.getParameter("lastName");
+    int age = Integer.parseInt(req.getParameter("age"));
 
-    String sql = "UPDATE users SET username = ?, password = ?, email = ? WHERE id = ?";
+    String sql = "UPDATE users SET first_name = ?, last_name = ?, age = ? WHERE id = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-      stmt.setString(1, username);
-      stmt.setString(2, password);
-      stmt.setString(3, email);
-      stmt.setInt(4, Integer.parseInt(id));
+      stmt.setString(1, firstName);
+      stmt.setString(2, lastName);
+      stmt.setInt(3, age);
+      stmt.setLong(4, id);
       stmt.executeUpdate();
     }
-    resp.getWriter().write("Пользователь обновлен");
   }
 
-  private void deleteUser(HttpServletRequest req, HttpServletResponse resp) throws SQLException, IOException {
-    String id = req.getParameter("id");
+  private void deleteUser(HttpServletRequest req) throws SQLException {
+    Long id = Long.parseLong(req.getParameter("id"));
 
     String sql = "DELETE FROM users WHERE id = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-      stmt.setInt(1, Integer.parseInt(id));
+      stmt.setLong(1, id);
       stmt.executeUpdate();
     }
-    resp.getWriter().write("Пользователь удален");
+  }
+
+  private void displayUsers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    List<User> userList = new ArrayList<>();
+    String sql = "SELECT id, first_name, last_name, age FROM users";
+    try (PreparedStatement stmt = connection.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery()) {
+      while (rs.next()) {
+        User user = new User();
+        user.setId(rs.getLong("id"));
+        user.setFirstName(rs.getString("first_name"));
+        user.setLastName(rs.getString("last_name"));
+        user.setAge(rs.getInt("age"));
+        userList.add(user);
+      }
+    } catch (SQLException e) {
+      throw new ServletException(e);
+    }
+    req.setAttribute("users", userList);
+    RequestDispatcher dispatcher = req.getRequestDispatcher("index.jsp");
+    dispatcher.forward(req, resp);
   }
 
   @Override
