@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management</title>
+</head>
+<body>
+<h1>User Management</h1>
+
+<!-- Add User -->
+<h2>Add User</h2>
+<form action="user" method="post">
+  <input type="hidden" name="action" value="add">
+  <label for="add-firstname">First Name:</label>
+  <input type="text" id="add-firstname" name="firstName" required><br>
+  <label for="add-lastname">Last Name:</label>
+  <input type="text" id="add-lastname" name="lastName" required><br>
+  <label for="add-age">Age:</label>
+  <input type="number" id="add-age" name="age" required><br>
+  <button type="submit">Add User</button>
+</form>
+
+<!-- Update User -->
+<h2>Update User</h2>
+<form action="user" method="post">
+  <input type="hidden" name="action" value="update">
+  <label for="update-id">User ID:</label>
+  <input type="text" id="update-id" name="id" required><br>
+  <label for="update-firstname">New First Name:</label>
+  <input type="text" id="update-firstname" name="firstName"><br>
+  <label for="update-lastname">New Last Name:</label>
+  <input type="text" id="update-lastname" name="lastName"><br>
+  <label for="update-age">New Age:</label>
+  <input type="number" id="update-age" name="age"><br>
+  <button type="submit">Update User</button>
+</form>
+
+<!-- Delete User -->
+<h2>Delete User</h2>
+<form action="user" method="post">
+  <input type="hidden" name="action" value="delete">
+  <label for="delete-id">User ID:</label>
+  <input type="text" id="delete-id" name="id" required><br>
+  <button type="submit">Delete User</button>
+</form>
+</body>
+</html>
