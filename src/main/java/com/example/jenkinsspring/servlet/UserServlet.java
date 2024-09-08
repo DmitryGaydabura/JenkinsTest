@@ -23,6 +23,7 @@ public class UserServlet extends HttpServlet {
       Class.forName("org.postgresql.Driver");
       connection = DriverManager.getConnection(
           "jdbc:postgresql://192.168.64.5:5432/mydatabase", "myuser", "mypassword");
+      connection.setAutoCommit(false); // Disable auto-commit
     } catch (ClassNotFoundException | SQLException e) {
       throw new ServletException("Cannot connect to database", e);
     }
@@ -51,13 +52,22 @@ public class UserServlet extends HttpServlet {
         default:
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action");
       }
+      connection.commit(); // Commit the transaction if no errors
     } catch (SQLException e) {
+      try {
+        connection.rollback(); // Rollback the transaction on error
+      } catch (SQLException rollbackEx) {
+        throw new ServletException("Rollback failed", rollbackEx);
+      }
       throw new ServletException(e);
     }
     displayUsers(req, resp); // Redisplay users after action
   }
 
   private void addUser(HttpServletRequest req) throws SQLException {
+    // Set isolation level for this operation
+    connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
     String firstName = req.getParameter("firstName");
     String lastName = req.getParameter("lastName");
     int age = Integer.parseInt(req.getParameter("age"));
@@ -72,6 +82,9 @@ public class UserServlet extends HttpServlet {
   }
 
   private void updateUser(HttpServletRequest req) throws SQLException {
+    // Set isolation level for this operation
+    connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
     long id = Long.parseLong(req.getParameter("id"));
     String firstName = req.getParameter("firstName");
     String lastName = req.getParameter("lastName");
@@ -88,6 +101,9 @@ public class UserServlet extends HttpServlet {
   }
 
   private void deleteUser(HttpServletRequest req) throws SQLException {
+    // Set isolation level for this operation
+    connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+
     long id = Long.parseLong(req.getParameter("id"));
 
     String sql = "DELETE FROM users WHERE id = ?";
@@ -99,6 +115,13 @@ public class UserServlet extends HttpServlet {
 
   private void displayUsers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     List<User> userList = new ArrayList<>();
+    // Set isolation level for this operation
+    try {
+      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+
     String sql = "SELECT id, first_name, last_name, age FROM users";
     try (PreparedStatement stmt = connection.prepareStatement(sql);
         ResultSet rs = stmt.executeQuery()) {
