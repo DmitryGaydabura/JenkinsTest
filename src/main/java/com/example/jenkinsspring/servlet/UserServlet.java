@@ -109,7 +109,7 @@ public class UserServlet extends HttpServlet {
       throw new ServletException(e);
     }
     req.setAttribute("users", userList);
-    RequestDispatcher dispatcher = req.getRequestDispatcher("index.jsp");
+    RequestDispatcher dispatcher = req.getRequestDispatcher("index.html");
     dispatcher.forward(req, resp);
   }
 
