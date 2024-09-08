@@ -29,6 +29,11 @@ public class UserServlet extends HttpServlet {
   }
 
   @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    displayUsers(req, resp); // Display the user list when GET request is made
+  }
+
+  @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String action = req.getParameter("action");
 
@@ -67,7 +72,7 @@ public class UserServlet extends HttpServlet {
   }
 
   private void updateUser(HttpServletRequest req) throws SQLException {
-    Long id = Long.parseLong(req.getParameter("id"));
+    long id = Long.parseLong(req.getParameter("id"));
     String firstName = req.getParameter("firstName");
     String lastName = req.getParameter("lastName");
     int age = Integer.parseInt(req.getParameter("age"));
@@ -83,7 +88,7 @@ public class UserServlet extends HttpServlet {
   }
 
   private void deleteUser(HttpServletRequest req) throws SQLException {
-    Long id = Long.parseLong(req.getParameter("id"));
+    long id = Long.parseLong(req.getParameter("id"));
 
     String sql = "DELETE FROM users WHERE id = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -109,7 +114,7 @@ public class UserServlet extends HttpServlet {
       throw new ServletException(e);
     }
     req.setAttribute("users", userList);
-    RequestDispatcher dispatcher = req.getRequestDispatcher("index.html");
+    RequestDispatcher dispatcher = req.getRequestDispatcher("/WEB-INF/views/users.jsp");
     dispatcher.forward(req, resp);
   }
 
