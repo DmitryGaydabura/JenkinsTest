@@ -24,10 +24,12 @@ public class UserServlet extends HttpServlet {
       connection = DriverManager.getConnection(
           "jdbc:postgresql://192.168.64.5:5432/mydatabase", "myuser", "mypassword");
       connection.setAutoCommit(false); // Disable auto-commit
+      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); // Set default isolation level
     } catch (ClassNotFoundException | SQLException e) {
       throw new ServletException("Cannot connect to database", e);
     }
   }
+
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -65,8 +67,6 @@ public class UserServlet extends HttpServlet {
   }
 
   private void addUser(HttpServletRequest req) throws SQLException {
-    // Set isolation level for this operation
-    connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
     String firstName = req.getParameter("firstName");
     String lastName = req.getParameter("lastName");
@@ -82,8 +82,7 @@ public class UserServlet extends HttpServlet {
   }
 
   private void updateUser(HttpServletRequest req) throws SQLException {
-    // Set isolation level for this operation
-    connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
 
     long id = Long.parseLong(req.getParameter("id"));
     String firstName = req.getParameter("firstName");
@@ -101,8 +100,6 @@ public class UserServlet extends HttpServlet {
   }
 
   private void deleteUser(HttpServletRequest req) throws SQLException {
-    // Set isolation level for this operation
-    connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
 
     long id = Long.parseLong(req.getParameter("id"));
 
@@ -115,12 +112,6 @@ public class UserServlet extends HttpServlet {
 
   private void displayUsers(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     List<User> userList = new ArrayList<>();
-    // Set isolation level for this operation
-    try {
-      connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
 
     String sql = "SELECT id, first_name, last_name, age FROM users";
     try (PreparedStatement stmt = connection.prepareStatement(sql);
