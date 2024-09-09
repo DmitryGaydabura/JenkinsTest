@@ -52,33 +52,47 @@ public class UserServlet extends HttpServlet {
     String action = req.getParameter("action");
 
     try {
+      // Каждая операция начинается с нового уровня изоляции и новой транзакции
       switch (action) {
         case "add":
-          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Добавление пользователя
-          addUser(req);
+          connection.setAutoCommit(false); // Начинаем новую транзакцию
+          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Изоляция для добавления
+          addUser(req); // Добавление пользователя
           break;
         case "update":
-          connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); // Изменение пользователя
-          updateUser(req);
+          connection.setAutoCommit(false);
+          connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); // Изоляция для изменения
+          updateUser(req); // Изменение пользователя
           break;
         case "delete":
-          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Удаление пользователя
-          deleteUser(req);
+          connection.setAutoCommit(false);
+          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Изоляция для удаления
+          deleteUser(req); // Удаление пользователя
           break;
         default:
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action");
+          return;
       }
-      connection.commit(); // Commit the transaction if no errors
+
+      connection.commit(); // Подтверждаем транзакцию
     } catch (SQLException e) {
       try {
-        connection.rollback(); // Rollback the transaction on error
+        connection.rollback(); // Откат транзакции в случае ошибки
       } catch (SQLException rollbackEx) {
         throw new ServletException("Rollback failed", rollbackEx);
       }
       throw new ServletException(e);
+    } finally {
+      try {
+        connection.setAutoCommit(true); // Возвращаем авто-коммит после завершения операции
+      } catch (SQLException e) {
+        throw new ServletException("Failed to reset auto-commit", e);
+      }
     }
-    displayUsers(req, resp); // Redisplay users after action
+
+    displayUsers(req, resp); // Перезагружаем список пользователей после каждой операции
   }
+
 
   private void addUser(HttpServletRequest req) throws SQLException {
 
