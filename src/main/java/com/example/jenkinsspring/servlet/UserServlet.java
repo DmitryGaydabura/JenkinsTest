@@ -25,21 +25,25 @@ public class UserServlet extends HttpServlet {
       connection = DriverManager.getConnection(
           "jdbc:postgresql://192.168.64.5:5432/mydatabase", "myuser", "mypassword");
       connection.setAutoCommit(false); // Disable auto-commit
-      connection.setTransactionIsolation(
-          Connection.TRANSACTION_READ_UNCOMMITTED); // Set default isolation level
-      //connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); // Set default isolation level
-      //connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); // Set default isolation level
-      //connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Set default isolation level
     } catch (ClassNotFoundException | SQLException e) {
       throw new ServletException("Cannot connect to database", e);
     }
   }
 
-
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    displayUsers(req, resp); // Display the user list when GET request is made
+    try {
+      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); // Чтение пользователей
+      displayUsers(req, resp); // Display the user list when GET request is made
+      connection.commit();
+    } catch (SQLException e) {
+      try {
+        connection.rollback();
+      } catch (SQLException rollbackEx) {
+        throw new ServletException("Rollback failed", rollbackEx);
+      }
+    }
   }
 
   @Override
@@ -50,12 +54,15 @@ public class UserServlet extends HttpServlet {
     try {
       switch (action) {
         case "add":
+          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Добавление пользователя
           addUser(req);
           break;
         case "update":
+          connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); // Изменение пользователя
           updateUser(req);
           break;
         case "delete":
+          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Удаление пользователя
           deleteUser(req);
           break;
         default:
