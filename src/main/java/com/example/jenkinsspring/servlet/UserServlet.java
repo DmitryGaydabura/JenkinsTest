@@ -52,7 +52,6 @@ public class UserServlet extends HttpServlet {
     String action = req.getParameter("action");
 
     try {
-      // Каждая операция начинается с нового уровня изоляции и новой транзакции
       switch (action) {
         case "add":
           connection.setAutoCommit(false); // Начинаем новую транзакцию
