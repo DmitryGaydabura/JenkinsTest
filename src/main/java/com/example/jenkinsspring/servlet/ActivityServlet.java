@@ -35,6 +35,13 @@ public class ActivityServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     try {
+      // Извлекаем сообщение из сессии, если оно есть
+      String message = (String) req.getSession().getAttribute("message");
+      if (message != null) {
+        req.setAttribute("message", message);
+        req.getSession().removeAttribute("message"); // Удаляем сообщение из сессии после извлечения
+      }
+
       connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
       List<Activity> activities = getActivities();
       connection.commit();
@@ -52,6 +59,7 @@ public class ActivityServlet extends HttpServlet {
       throw new ServletException("Ошибка при получении активности", e);
     }
   }
+
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -72,10 +80,10 @@ public class ActivityServlet extends HttpServlet {
         case "sendReport":
           // Генерируем отчет и отправляем по почте
           generateAndSendReport(req);
-          // Сообщаем пользователю об успешной отправке
-          req.setAttribute("message", "Отчет успешно отправлен на вашу почту.");
-          // Обновляем список активностей и перенаправляем на страницу
-          doGet(req, resp);
+          // Сообщаем пользователю об успешной отправке, сохраняя сообщение в сессии
+          req.getSession().setAttribute("message", "Отчет успешно отправлен на вашу почту.");
+          // Перенаправляем пользователя на страницу активности
+          resp.sendRedirect("activity");
           return;
         default:
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Неизвестное действие");

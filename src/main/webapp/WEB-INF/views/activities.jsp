@@ -85,6 +85,21 @@
   </style>
 </head>
 <body>
+<% if (request.getAttribute("message") != null) { %>
+<div class="alert">
+  <%= request.getAttribute("message") %>
+</div>
+<% } %>
+
+
+<style>
+  .alert {
+    padding: 15px;
+    background-color: #4CAF50; /* Зеленый цвет для успешного сообщения */
+    color: white;
+    margin-bottom: 15px;
+  }
+</style>
 <header>
   <h1>Activity Management System</h1>
 </header>
