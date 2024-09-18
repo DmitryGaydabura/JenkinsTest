@@ -8,7 +8,83 @@
   <meta charset="UTF-8">
   <title>Activity Management</title>
   <style>
-    /* Добавьте здесь ваши стили, можете скопировать их из users.jsp */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    header {
+      background-color: #007bff;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      overflow: hidden;
+    }
+    h1, h2 {
+      margin-top: 0;
+    }
+    .form-container {
+      background: #fff;
+      padding: 2rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    form {
+      margin: 1rem 0;
+    }
+    label {
+      display: block;
+      margin: 0.5rem 0 0.2rem;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    textarea {
+      resize: vertical;
+    }
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 0.7rem;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .no-activities {
+      text-align: center;
+      color: #888;
+      padding: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -16,7 +92,7 @@
   <h1>Activity Management System</h1>
 </header>
 <div class="container">
-  <!-- Форма для добавления активности -->
+  <!-- Add Activity -->
   <div class="form-container">
     <h2>Add Activity</h2>
     <form action="activity" method="post">
@@ -24,12 +100,12 @@
       <label for="userId">User ID:</label>
       <input type="text" id="userId" name="userId" required>
       <label for="description">Description:</label>
-      <textarea id="description" name="description" required></textarea>
+      <textarea id="description" name="description" rows="4" required></textarea>
       <button type="submit">Add Activity</button>
     </form>
   </div>
 
-  <!-- Список активностей -->
+  <!-- Display Activities -->
   <div class="form-container">
     <h2>Activities List</h2>
     <table>
