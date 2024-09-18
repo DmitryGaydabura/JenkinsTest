@@ -142,7 +142,7 @@
     <!-- Добавляем кнопку для отправки отчета -->
     <form action="activity" method="post" style="text-align: right; margin-bottom: 10px;">
       <input type="hidden" name="action" value="sendReport">
-      <button type="submit">Отправить отчет на почту</button>
+      <button type="submit">Send Report To Email</button>
     </form>
     <table>
       <thead>
