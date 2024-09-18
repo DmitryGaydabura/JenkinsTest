@@ -115,7 +115,12 @@
 </style>
 
 <header>
-  <h1>Activity Management System</h1>
+  <h1>User Management System</h1>
+  <!-- Добавляем навигационные кнопки -->
+  <nav>
+    <a href="${pageContext.request.contextPath}/activity">Activities</a>
+    <a href="${pageContext.request.contextPath}/user">Users</a>
+  </nav>
 </header>
 <div class="container">
   <!-- Add Activity -->

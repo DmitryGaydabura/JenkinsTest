@@ -93,9 +93,7 @@
         <a href="${pageContext.request.contextPath}/user">Users</a>
     </nav>
 </header>
-<header>
-    <h1>User Management System</h1>
-</header>
+
 <div class="container">
     <!-- Add User -->
     <div class="form-container">
