@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: dmitry
-  Date: 18.09.2024
-  Time: 14:55
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page import="com.example.jenkinsspring.servlet.Activity" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.text.SimpleDateFormat" %>
@@ -14,9 +7,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Activity Management</title>
-  <!-- Стили аналогичны тем, что в users.jsp -->
   <style>
-    /* Ваши стили */
+    /* Добавьте здесь ваши стили, можете скопировать их из users.jsp */
   </style>
 </head>
 <body>
@@ -84,4 +76,3 @@
 </div>
 </body>
 </html>
-
