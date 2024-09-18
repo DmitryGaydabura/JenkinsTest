@@ -167,7 +167,7 @@ public class ActivityServlet extends HttpServlet {
       ReportGenerator.generateDailyActivityReport(activities, filePath);
 
       // Отправляем отчет по электронной почте
-      String toEmail = "your_email@example.com"; // Укажите ваш адрес электронной почты
+      String toEmail = "gaydabura.d@icloud.com"; // Укажите ваш адрес электронной почты
       String subject = "Отчет о всех активностях";
       String body = "Здравствуйте,\n\nПрикреплен отчет о всех активностях.\n\nС уважением,\nВаша команда";
 
