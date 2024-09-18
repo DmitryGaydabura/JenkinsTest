@@ -1,5 +1,6 @@
-package com.example.jenkinsspring.servlet;
+package com.example.jenkinsspring.controller;
 
+import com.example.jenkinsspring.model.User;
 import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;

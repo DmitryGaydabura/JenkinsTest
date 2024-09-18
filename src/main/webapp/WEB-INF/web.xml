@@ -6,7 +6,7 @@
 
   <servlet>
     <servlet-name>UserServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.servlet.UserServlet</servlet-class>
+    <servlet-class>com.example.jenkinsspring.controller.UserServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -16,7 +16,7 @@
 
   <servlet>
     <servlet-name>ActivityServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.servlet.ActivityServlet</servlet-class>
+    <servlet-class>com.example.jenkinsspring.controller.ActivityServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>

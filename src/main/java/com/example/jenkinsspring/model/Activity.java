@@ -1,4 +1,4 @@
-package com.example.jenkinsspring.servlet;
+package com.example.jenkinsspring.model;
 
 import java.sql.Timestamp;
 

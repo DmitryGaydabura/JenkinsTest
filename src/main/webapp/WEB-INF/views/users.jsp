@@ -1,4 +1,4 @@
-<%@ page import="com.example.jenkinsspring.servlet.User" %>
+<%@ page import="com.example.jenkinsspring.model.User" %>
 <%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>

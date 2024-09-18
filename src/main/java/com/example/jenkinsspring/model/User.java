@@ -1,4 +1,4 @@
-package com.example.jenkinsspring.servlet;
+package com.example.jenkinsspring.model;
 
 public class User {
 

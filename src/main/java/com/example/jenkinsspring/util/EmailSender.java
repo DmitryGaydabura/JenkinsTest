@@ -1,4 +1,4 @@
-package com.example.jenkinsspring.servlet;
+package com.example.jenkinsspring.util;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
@@ -8,21 +8,21 @@ import java.io.File;
 
 public class EmailSender {
 
-  public static void sendEmailWithAttachment(String toEmail, String subject, String body, String attachmentPath) throws MessagingException {
-    // Настройки SMTP сервера Gmail
+  public static void sendEmailWithAttachment(String toEmail, String subject, String body, String attachmentPath)
+      throws MessagingException, IOException {
+    // Настройки SMTP сервера
     Properties props = new Properties();
     props.put("mail.smtp.host", "smtp.gmail.com");
-    props.put("mail.smtp.port", "587"); // Используем порт 587 для TLS
+    props.put("mail.smtp.port", "587"); // Порт для TLS
     props.put("mail.smtp.auth", "true");
     props.put("mail.smtp.starttls.enable", "true");
-    props.put("mail.smtp.ssl.protocols", "TLSv1.2"); // Обеспечиваем использование современного протокола
 
-    // Учетные данные вашей учетной записи Gmail
-    final String username = "gaydabura.d1@gmail.com"; // Ваш адрес Gmail
-    final String password = "urme vzso taig veia"; // Пароль приложения, созданный ранее
+    // Учетные данные
+    final String username = "your_email@gmail.com"; // Замените на ваш email
+    final String password = "your_app_password"; // Замените на ваш пароль приложения
 
-    // Аутентификация
-    Session session = Session.getInstance(props, new jakarta.mail.Authenticator() {
+    // Создание сессии
+    Session session = Session.getInstance(props, new Authenticator() {
       protected PasswordAuthentication getPasswordAuthentication() {
         return new PasswordAuthentication(username, password);
       }
@@ -40,12 +40,9 @@ public class EmailSender {
 
     // Вложение
     MimeBodyPart attachmentPart = new MimeBodyPart();
-    try {
-      attachmentPart.attachFile(new File(attachmentPath));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    attachmentPart.attachFile(new File(attachmentPath));
 
+    // Комбинируем части
     Multipart multipart = new MimeMultipart();
     multipart.addBodyPart(messageBodyPart);
     multipart.addBodyPart(attachmentPart);

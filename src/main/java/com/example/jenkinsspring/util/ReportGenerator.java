@@ -1,5 +1,6 @@
-package com.example.jenkinsspring.servlet;
+package com.example.jenkinsspring.util;
 
+import com.example.jenkinsspring.model.Activity;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -17,19 +18,13 @@ import java.util.List;
 
 public class ReportGenerator {
 
-  public static void generateDailyActivityReport(List<Activity> activities, String filePath)
-      throws IOException {
-    // Создаем PDF Writer
+  public static void generateActivityReport(List<Activity> activities, String filePath) throws IOException {
     PdfWriter writer = new PdfWriter(filePath);
-
-    // Создаем PDF документ
     PdfDocument pdf = new PdfDocument(writer);
-
-    // Создаем объект Document
     Document document = new Document(pdf);
 
-    // Добавляем заголовок
-    Paragraph header = new Paragraph("Daily Activity Report")
+    // Заголовок
+    Paragraph header = new Paragraph("Activity Report")
         .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
         .setFontSize(18)
         .setFontColor(ColorConstants.BLUE)
@@ -37,37 +32,30 @@ public class ReportGenerator {
         .setMarginBottom(20);
     document.add(header);
 
-    // Создаем таблицу с 7 столбцами
-    float[] columnWidths = {1, 2, 3, 3, 5, 3};
+    // Таблица
+    float[] columnWidths = {1, 2, 2, 4, 3};
     Table table = new Table(columnWidths);
-
-    // Устанавливаем ширину таблицы в 100%
     table.setWidth(UnitValue.createPercentValue(100));
 
-    // Добавляем заголовки столбцов
+    // Заголовки столбцов
     table.addHeaderCell(new Cell().add(new Paragraph("ID").setBold()));
     table.addHeaderCell(new Cell().add(new Paragraph("User ID").setBold()));
-    table.addHeaderCell(new Cell().add(new Paragraph("First Name").setBold()));
-    table.addHeaderCell(new Cell().add(new Paragraph("Last Name").setBold()));
+    table.addHeaderCell(new Cell().add(new Paragraph("Name").setBold()));
     table.addHeaderCell(new Cell().add(new Paragraph("Description").setBold()));
     table.addHeaderCell(new Cell().add(new Paragraph("Date").setBold()));
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    // Заполняем таблицу данными
+    // Заполнение таблицы
     for (Activity activity : activities) {
       table.addCell(new Cell().add(new Paragraph(String.valueOf(activity.getId()))));
       table.addCell(new Cell().add(new Paragraph(String.valueOf(activity.getUserId()))));
-      table.addCell(new Cell().add(new Paragraph(activity.getFirstName())));
-      table.addCell(new Cell().add(new Paragraph(activity.getLastName())));
+      table.addCell(new Cell().add(new Paragraph(activity.getFirstName() + " " + activity.getLastName())));
       table.addCell(new Cell().add(new Paragraph(activity.getDescription())));
       table.addCell(new Cell().add(new Paragraph(sdf.format(activity.getActivityDate()))));
     }
 
-    // Добавляем таблицу в документ
     document.add(table);
-
-    // Закрываем документ
     document.close();
   }
 }

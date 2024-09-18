@@ -1,10 +1,7 @@
-package com.example.jenkinsspring.servlet;
-
-
+package com.example.jenkinsspring.exception;
 
 public class UserNotFoundException extends Exception {
   public UserNotFoundException(String message) {
     super(message);
   }
 }
-
