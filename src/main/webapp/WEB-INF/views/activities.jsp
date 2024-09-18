@@ -85,21 +85,35 @@
   </style>
 </head>
 <body>
+<!-- Отображение сообщения об ошибке -->
+<% if (request.getAttribute("errorMessage") != null) { %>
+<div class="alert error">
+  <%= request.getAttribute("errorMessage") %>
+</div>
+<% } %>
+
+<!-- Отображение сообщения об успехе -->
 <% if (request.getAttribute("message") != null) { %>
-<div class="alert">
+<div class="alert success">
   <%= request.getAttribute("message") %>
 </div>
 <% } %>
 
-
+<!-- Добавьте стили для сообщений -->
 <style>
   .alert {
     padding: 15px;
-    background-color: #4CAF50; /* Зеленый цвет для успешного сообщения */
-    color: white;
     margin-bottom: 15px;
+    color: white;
+  }
+  .alert.success {
+    background-color: #4CAF50; /* Зеленый */
+  }
+  .alert.error {
+    background-color: #f44336; /* Красный */
   }
 </style>
+
 <header>
   <h1>Activity Management System</h1>
 </header>

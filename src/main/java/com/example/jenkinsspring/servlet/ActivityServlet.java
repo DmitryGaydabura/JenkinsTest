@@ -26,11 +26,16 @@ public class ActivityServlet extends HttpServlet {
       Class.forName("org.postgresql.Driver");
       connection = DriverManager.getConnection(
           "jdbc:postgresql://192.168.64.5:5432/mydatabase", "myuser", "mypassword");
-      connection.setAutoCommit(false); // Отключаем авто-коммит для управления транзакциями
+      connection.setAutoCommit(false); // Отключаем авто-коммит
+
+      // Устанавливаем уровень изоляции транзакции здесь
+      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
     } catch (ClassNotFoundException | SQLException e) {
       throw new ServletException("Не удалось подключиться к базе данных", e);
     }
   }
+
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -39,10 +44,16 @@ public class ActivityServlet extends HttpServlet {
       String message = (String) req.getSession().getAttribute("message");
       if (message != null) {
         req.setAttribute("message", message);
-        req.getSession().removeAttribute("message"); // Удаляем сообщение из сессии после извлечения
+        req.getSession().removeAttribute("message");
       }
 
-      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+      // Извлекаем сообщение об ошибке из сессии, если оно есть
+      String errorMessage = (String) req.getSession().getAttribute("errorMessage");
+      if (errorMessage != null) {
+        req.setAttribute("errorMessage", errorMessage);
+        req.getSession().removeAttribute("errorMessage");
+      }
+
       List<Activity> activities = getActivities();
       connection.commit();
 
@@ -61,6 +72,8 @@ public class ActivityServlet extends HttpServlet {
   }
 
 
+
+
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String action = req.getParameter("action");
@@ -68,28 +81,28 @@ public class ActivityServlet extends HttpServlet {
     try {
       switch (action) {
         case "add":
-          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+          // Удаляем вызов setTransactionIsolation
+          // connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
           addActivity(req);
           connection.commit();
+          req.getSession().setAttribute("message", "Активность успешно добавлена.");
           break;
         case "delete":
-          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+          // Удаляем вызов setTransactionIsolation
+          // connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
           deleteActivity(req);
           connection.commit();
+          req.getSession().setAttribute("message", "Активность успешно удалена.");
           break;
         case "sendReport":
-          // Генерируем отчет и отправляем по почте
           generateAndSendReport(req);
-          // Сообщаем пользователю об успешной отправке, сохраняя сообщение в сессии
           req.getSession().setAttribute("message", "Отчет успешно отправлен на вашу почту.");
-          // Перенаправляем пользователя на страницу активности
-          resp.sendRedirect("activity");
-          return;
+          break;
         default:
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Неизвестное действие");
           return;
       }
-    } catch (SQLException | MessagingException e) {
+    } catch (SQLException | MessagingException | UserNotFoundException e) {
       try {
         connection.rollback();
       } catch (SQLException rollbackEx) {
@@ -102,9 +115,16 @@ public class ActivityServlet extends HttpServlet {
     resp.sendRedirect("activity");
   }
 
+
+
   // Метод для добавления новой активности
-  private void addActivity(HttpServletRequest req) throws SQLException {
-    Long userId = Long.parseLong(req.getParameter("userId"));
+  private void addActivity(HttpServletRequest req) throws SQLException, UserNotFoundException {
+    Long userId;
+    try {
+      userId = Long.parseLong(req.getParameter("userId"));
+    } catch (NumberFormatException e) {
+      throw new UserNotFoundException("Некорректный ID пользователя.");
+    }
     String description = req.getParameter("description");
 
     // Проверяем, существует ли пользователь
@@ -113,7 +133,7 @@ public class ActivityServlet extends HttpServlet {
       checkUserStmt.setLong(1, userId);
       try (ResultSet rs = checkUserStmt.executeQuery()) {
         if (rs.next() && rs.getInt(1) == 0) {
-          throw new SQLException("Пользователь с ID " + userId + " не существует.");
+          throw new UserNotFoundException("Пользователь с ID " + userId + " не существует.");
         }
       }
     }
@@ -125,6 +145,7 @@ public class ActivityServlet extends HttpServlet {
       stmt.executeUpdate();
     }
   }
+
 
   // Метод для удаления активности
   private void deleteActivity(HttpServletRequest req) throws SQLException {
