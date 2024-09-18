@@ -162,13 +162,19 @@ public class ActivityServlet extends HttpServlet {
   private List<Activity> getActivities() throws SQLException {
     List<Activity> activities = new ArrayList<>();
 
-    String sql = "SELECT id, user_id, description, activity_date FROM activities ORDER BY activity_date DESC";
+    String sql = "SELECT a.id, a.user_id, u.first_name, u.last_name, a.description, a.activity_date " +
+        "FROM activities a " +
+        "JOIN users u ON a.user_id = u.id " +
+        "ORDER BY a.activity_date DESC";
+
     try (PreparedStatement stmt = connection.prepareStatement(sql);
         ResultSet rs = stmt.executeQuery()) {
       while (rs.next()) {
         Activity activity = new Activity();
         activity.setId(rs.getLong("id"));
         activity.setUserId(rs.getLong("user_id"));
+        activity.setFirstName(rs.getString("first_name"));
+        activity.setLastName(rs.getString("last_name"));
         activity.setDescription(rs.getString("description"));
         activity.setActivityDate(rs.getTimestamp("activity_date"));
         activities.add(activity);
@@ -176,6 +182,7 @@ public class ActivityServlet extends HttpServlet {
     }
     return activities;
   }
+
 
   // Метод для генерации и отправки отчета
   private void generateAndSendReport(HttpServletRequest req) throws SQLException, MessagingException {

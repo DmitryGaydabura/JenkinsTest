@@ -139,12 +139,13 @@
       <input type="hidden" name="action" value="sendReport">
       <button type="submit">Отправить отчет на почту</button>
     </form>
-
     <table>
       <thead>
       <tr>
         <th>ID</th>
         <th>User ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
         <th>Description</th>
         <th>Date</th>
         <th>Action</th>
@@ -160,6 +161,8 @@
       <tr>
         <td><%= activity.getId() %></td>
         <td><%= activity.getUserId() %></td>
+        <td><%= activity.getFirstName() %></td>
+        <td><%= activity.getLastName() %></td>
         <td><%= activity.getDescription() %></td>
         <td><%= sdf.format(activity.getActivityDate()) %></td>
         <td>
@@ -175,7 +178,7 @@
       } else {
       %>
       <tr>
-        <td colspan="5" class="no-activities">No activities found</td>
+        <td colspan="7" class="no-activities">No activities found</td>
       </tr>
       <% } %>
       </tbody>
