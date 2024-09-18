@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ActivityServlet extends HttpServlet {
+
   private Connection connection;
 
   @Override
@@ -32,13 +33,14 @@ public class ActivityServlet extends HttpServlet {
       connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
     } catch (ClassNotFoundException | SQLException e) {
-      throw new ServletException("Не удалось подключиться к базе данных", e);
+      throw new ServletException("Connection with DB was unsuccessful", e);
     }
   }
 
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     try {
       // Извлекаем сообщение из сессии, если оно есть
       String message = (String) req.getSession().getAttribute("message");
@@ -65,38 +67,35 @@ public class ActivityServlet extends HttpServlet {
       try {
         connection.rollback();
       } catch (SQLException rollbackEx) {
-        throw new ServletException("Ошибка отката транзакции", rollbackEx);
+        throw new ServletException("Rollback error occurred", rollbackEx);
       }
-      throw new ServletException("Ошибка при получении активности", e);
+      throw new ServletException("An error occurred while activity retaining.", e);
     }
   }
 
 
-
-
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     String action = req.getParameter("action");
 
     try {
       switch (action) {
         case "add":
-          // Удаляем вызов setTransactionIsolation
           // connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
           addActivity(req);
           connection.commit();
-          req.getSession().setAttribute("message", "Активность успешно добавлена.");
+          req.getSession().setAttribute("message", "Activity was successfully added.");
           break;
         case "delete":
-          // Удаляем вызов setTransactionIsolation
           // connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
           deleteActivity(req);
           connection.commit();
-          req.getSession().setAttribute("message", "Активность успешно удалена.");
+          req.getSession().setAttribute("message", "Activity was successfully deleted.");
           break;
         case "sendReport":
           generateAndSendReport(req);
-          req.getSession().setAttribute("message", "Отчет успешно отправлен на вашу почту.");
+          req.getSession().setAttribute("message", "Great! Report was sent to your email.");
           break;
         default:
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Неизвестное действие");
@@ -106,15 +105,14 @@ public class ActivityServlet extends HttpServlet {
       try {
         connection.rollback();
       } catch (SQLException rollbackEx) {
-        throw new ServletException("Ошибка отката транзакции", rollbackEx);
+        throw new ServletException("Rollback error occurred", rollbackEx);
       }
-      throw new ServletException("Ошибка при обработке действия", e);
+      throw new ServletException("Error with operation handling occurred", e);
     }
 
     // Перенаправляем пользователя обратно на страницу активности
     resp.sendRedirect("activity");
   }
-
 
 
   // Метод для добавления новой активности
@@ -123,7 +121,7 @@ public class ActivityServlet extends HttpServlet {
     try {
       userId = Long.parseLong(req.getParameter("userId"));
     } catch (NumberFormatException e) {
-      throw new UserNotFoundException("Некорректный ID пользователя.");
+      throw new UserNotFoundException("User ID is incorrect");
     }
     String description = req.getParameter("description");
 
@@ -133,7 +131,7 @@ public class ActivityServlet extends HttpServlet {
       checkUserStmt.setLong(1, userId);
       try (ResultSet rs = checkUserStmt.executeQuery()) {
         if (rs.next() && rs.getInt(1) == 0) {
-          throw new UserNotFoundException("Пользователь с ID " + userId + " не существует.");
+          throw new UserNotFoundException("There are no users with ID " + userId);
         }
       }
     }
@@ -162,10 +160,11 @@ public class ActivityServlet extends HttpServlet {
   private List<Activity> getActivities() throws SQLException {
     List<Activity> activities = new ArrayList<>();
 
-    String sql = "SELECT a.id, a.user_id, u.first_name, u.last_name, a.description, a.activity_date " +
-        "FROM activities a " +
-        "JOIN users u ON a.user_id = u.id " +
-        "ORDER BY a.activity_date DESC";
+    String sql =
+        "SELECT a.id, a.user_id, u.first_name, u.last_name, a.description, a.activity_date " +
+            "FROM activities a " +
+            "JOIN users u ON a.user_id = u.id " +
+            "ORDER BY a.activity_date DESC";
 
     try (PreparedStatement stmt = connection.prepareStatement(sql);
         ResultSet rs = stmt.executeQuery()) {
@@ -185,7 +184,8 @@ public class ActivityServlet extends HttpServlet {
 
 
   // Метод для генерации и отправки отчета
-  private void generateAndSendReport(HttpServletRequest req) throws SQLException, MessagingException {
+  private void generateAndSendReport(HttpServletRequest req)
+      throws SQLException, MessagingException {
     try {
       // Получаем все активности
       List<Activity> activities = getActivities();
@@ -204,8 +204,8 @@ public class ActivityServlet extends HttpServlet {
 
       // Отправляем отчет по электронной почте
       String toEmail = "gaydabura.d@icloud.com"; // Укажите ваш адрес электронной почты
-      String subject = "Отчет о всех активностях";
-      String body = "Здравствуйте,\n\nПрикреплен отчет о всех активностях.\n\nС уважением,\nВаша команда";
+      String subject = "User Activity Report";
+      String body = "Hi,\n\nActivity report is attached below.\n\nBest regards";
 
       EmailSender.sendEmailWithAttachment(toEmail, subject, body, filePath);
 
@@ -216,7 +216,7 @@ public class ActivityServlet extends HttpServlet {
       }
 
     } catch (IOException e) {
-      throw new SQLException("Ошибка при генерации отчета", e);
+      throw new SQLException("An error occurred during report generation.", e);
     }
   }
 
