@@ -1,23 +1,24 @@
 package com.example.jenkinsspring.controller;
 
 import com.example.jenkinsspring.model.User;
+import com.example.jenkinsspring.service.UserService;
+import com.example.jenkinsspring.service.UserServiceImpl;
+import com.example.jenkinsspring.dao.UserDAO;
+import com.example.jenkinsspring.dao.UserDAOImpl;
+
 import javax.servlet.ServletException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.*;
 import java.util.List;
 
 public class UserServlet extends HttpServlet {
 
   private Connection connection;
+  private UserService userService;
 
   @Override
   public void init() throws ServletException {
@@ -25,9 +26,15 @@ public class UserServlet extends HttpServlet {
       Class.forName("org.postgresql.Driver");
       connection = DriverManager.getConnection(
           "jdbc:postgresql://192.168.64.5:5432/mydatabase", "myuser", "mypassword");
-      connection.setAutoCommit(false); // Disable auto-commit
+      connection.setAutoCommit(false); // Отключаем авто-коммит
+      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
+      // Инициализируем DAO и сервис
+      UserDAO userDAO = new UserDAOImpl(connection);
+      userService = new UserServiceImpl(userDAO);
+
     } catch (ClassNotFoundException | SQLException e) {
-      throw new ServletException("Cannot connect to database", e);
+      throw new ServletException("Не удалось подключиться к базе данных", e);
     }
   }
 
@@ -35,15 +42,19 @@ public class UserServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     try {
-      connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); // Чтение пользователей
-      displayUsers(req, resp); // Display the user list when GET request is made
+      List<User> userList = userService.getAllUsers();
       connection.commit();
+
+      req.setAttribute("users", userList);
+      RequestDispatcher dispatcher = req.getRequestDispatcher("/WEB-INF/views/users.jsp");
+      dispatcher.forward(req, resp);
     } catch (SQLException e) {
       try {
         connection.rollback();
       } catch (SQLException rollbackEx) {
-        throw new ServletException("Rollback failed", rollbackEx);
+        throw new ServletException("Ошибка отката транзакции", rollbackEx);
       }
+      throw new ServletException("Ошибка при получении пользователей", e);
     }
   }
 
@@ -55,109 +66,68 @@ public class UserServlet extends HttpServlet {
     try {
       switch (action) {
         case "add":
-          connection.setAutoCommit(false); // Начинаем новую транзакцию
-          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Изоляция для добавления
-          addUser(req); // Добавление пользователя
+          handleAddUser(req);
           break;
         case "update":
-          connection.setAutoCommit(false);
-          connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ); // Изоляция для изменения
-          updateUser(req); // Изменение пользователя
+          handleUpdateUser(req);
           break;
         case "delete":
-          connection.setAutoCommit(false);
-          connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Изоляция для удаления
-          deleteUser(req); // Удаление пользователя
+          handleDeleteUser(req);
           break;
         default:
-          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action");
+          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Неизвестное действие");
           return;
       }
-
-      connection.commit(); // Подтверждаем транзакцию
+      connection.commit();
     } catch (SQLException e) {
       try {
-        connection.rollback(); // Откат транзакции в случае ошибки
+        connection.rollback();
       } catch (SQLException rollbackEx) {
-        throw new ServletException("Rollback failed", rollbackEx);
+        throw new ServletException("Ошибка отката транзакции", rollbackEx);
       }
-      throw new ServletException(e);
-    } finally {
-      try {
-        connection.setAutoCommit(true); // Возвращаем авто-коммит после завершения операции
-      } catch (SQLException e) {
-        throw new ServletException("Failed to reset auto-commit", e);
-      }
+      throw new ServletException("Ошибка при обработке действия", e);
     }
 
-    displayUsers(req, resp); // Перезагружаем список пользователей после каждой операции
+    resp.sendRedirect("user");
   }
 
-
-  private void addUser(HttpServletRequest req) throws SQLException {
+  private void handleAddUser(HttpServletRequest req) throws SQLException {
 
     String firstName = req.getParameter("firstName");
     String lastName = req.getParameter("lastName");
     int age = Integer.parseInt(req.getParameter("age"));
 
-    String sql = "INSERT INTO users (first_name, last_name, age) VALUES (?, ?, ?)";
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-      stmt.setString(1, firstName);
-      stmt.setString(2, lastName);
-      stmt.setInt(3, age);
-      stmt.executeUpdate();
-    }
+    User user = new User();
+    user.setFirstName(firstName);
+    user.setLastName(lastName);
+    user.setAge(age);
+
+    userService.addUser(user);
+    req.getSession().setAttribute("message", "Пользователь успешно добавлен.");
   }
 
-  private void updateUser(HttpServletRequest req) throws SQLException {
+  private void handleUpdateUser(HttpServletRequest req) throws SQLException {
 
     long id = Long.parseLong(req.getParameter("id"));
     String firstName = req.getParameter("firstName");
     String lastName = req.getParameter("lastName");
     int age = Integer.parseInt(req.getParameter("age"));
 
-    String sql = "UPDATE users SET first_name = ?, last_name = ?, age = ? WHERE id = ?";
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-      stmt.setString(1, firstName);
-      stmt.setString(2, lastName);
-      stmt.setInt(3, age);
-      stmt.setLong(4, id);
-      stmt.executeUpdate();
-    }
+    User user = new User();
+    user.setId(id);
+    user.setFirstName(firstName);
+    user.setLastName(lastName);
+    user.setAge(age);
+
+    userService.updateUser(user);
+    req.getSession().setAttribute("message", "Пользователь успешно обновлен.");
   }
 
-  private void deleteUser(HttpServletRequest req) throws SQLException {
+  private void handleDeleteUser(HttpServletRequest req) throws SQLException {
 
     long id = Long.parseLong(req.getParameter("id"));
-
-    String sql = "DELETE FROM users WHERE id = ?";
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-      stmt.setLong(1, id);
-      stmt.executeUpdate();
-    }
-  }
-
-  private void displayUsers(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
-    List<User> userList = new ArrayList<>();
-
-    String sql = "SELECT id, first_name, last_name, age FROM users";
-    try (PreparedStatement stmt = connection.prepareStatement(sql);
-        ResultSet rs = stmt.executeQuery()) {
-      while (rs.next()) {
-        User user = new User();
-        user.setId(rs.getLong("id"));
-        user.setFirstName(rs.getString("first_name"));
-        user.setLastName(rs.getString("last_name"));
-        user.setAge(rs.getInt("age"));
-        userList.add(user);
-      }
-    } catch (SQLException e) {
-      throw new ServletException(e);
-    }
-    req.setAttribute("users", userList);
-    RequestDispatcher dispatcher = req.getRequestDispatcher("/WEB-INF/views/users.jsp");
-    dispatcher.forward(req, resp);
+    userService.deleteUser(id);
+    req.getSession().setAttribute("message", "Пользователь успешно удален.");
   }
 
   @Override

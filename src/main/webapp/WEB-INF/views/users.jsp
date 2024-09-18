@@ -87,6 +87,14 @@
 <body>
 <header>
     <h1>User Management System</h1>
+    <!-- Добавляем навигационные кнопки -->
+    <nav>
+        <a href="${pageContext.request.contextPath}/activity">Activities</a>
+        <a href="${pageContext.request.contextPath}/user">Users</a>
+    </nav>
+</header>
+<header>
+    <h1>User Management System</h1>
 </header>
 <div class="container">
     <!-- Add User -->
