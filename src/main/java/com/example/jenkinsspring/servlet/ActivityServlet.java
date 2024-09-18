@@ -1,5 +1,7 @@
 package com.example.jenkinsspring.servlet;
 
+import jakarta.mail.MessagingException;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -67,11 +69,19 @@ public class ActivityServlet extends HttpServlet {
           deleteActivity(req);
           connection.commit();
           break;
+        case "sendReport":
+          // Генерируем отчет и отправляем по почте
+          generateAndSendReport(req);
+          // Сообщаем пользователю об успешной отправке
+          req.setAttribute("message", "Отчет успешно отправлен на вашу почту.");
+          // Обновляем список активностей и перенаправляем на страницу
+          doGet(req, resp);
+          return;
         default:
           resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Неизвестное действие");
           return;
       }
-    } catch (SQLException e) {
+    } catch (SQLException | MessagingException e) {
       try {
         connection.rollback();
       } catch (SQLException rollbackEx) {
@@ -79,8 +89,6 @@ public class ActivityServlet extends HttpServlet {
       }
       throw new ServletException("Ошибка при обработке действия", e);
     }
-    // Не меняем autoCommit обратно на true
-    // Оставляем autoCommit в false, как было установлено в init()
 
     // Перенаправляем пользователя обратно на страницу активности
     resp.sendRedirect("activity");
@@ -121,7 +129,7 @@ public class ActivityServlet extends HttpServlet {
     }
   }
 
-  // Метод для получения списка активности
+  // Метод для получения списка всех активностей
   private List<Activity> getActivities() throws SQLException {
     List<Activity> activities = new ArrayList<>();
 
@@ -138,6 +146,42 @@ public class ActivityServlet extends HttpServlet {
       }
     }
     return activities;
+  }
+
+  // Метод для генерации и отправки отчета
+  private void generateAndSendReport(HttpServletRequest req) throws SQLException, MessagingException {
+    try {
+      // Получаем все активности
+      List<Activity> activities = getActivities();
+
+      // Указываем путь для сохранения отчета
+      String reportsDirPath = getServletContext().getRealPath("/WEB-INF/reports/");
+      File reportsDir = new File(reportsDirPath);
+      if (!reportsDir.exists()) {
+        reportsDir.mkdirs();
+      }
+
+      String filePath = reportsDirPath + "activity_report.pdf";
+
+      // Генерируем PDF отчет
+      ReportGenerator.generateDailyActivityReport(activities, filePath);
+
+      // Отправляем отчет по электронной почте
+      String toEmail = "your_email@example.com"; // Укажите ваш адрес электронной почты
+      String subject = "Отчет о всех активностях";
+      String body = "Здравствуйте,\n\nПрикреплен отчет о всех активностях.\n\nС уважением,\nВаша команда";
+
+      EmailSender.sendEmailWithAttachment(toEmail, subject, body, filePath);
+
+      // Удаляем отчет после отправки
+      File reportFile = new File(filePath);
+      if (reportFile.exists()) {
+        reportFile.delete();
+      }
+
+    } catch (IOException e) {
+      throw new SQLException("Ошибка при генерации отчета", e);
+    }
   }
 
   @Override
