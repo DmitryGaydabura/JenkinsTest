@@ -1,6 +1,5 @@
 package com.example.jenkinsspring.servlet;
 
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,11 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 
 public class ActivityServlet extends HttpServlet {
   private Connection connection;
@@ -33,15 +32,15 @@ public class ActivityServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    // Устанавливаем уровень изоляции для чтения данных
     try {
       connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
       List<Activity> activities = getActivities();
       connection.commit();
 
-      // Передаем список активностей в JSP или возвращаем JSON
+      // Передаем список активностей в JSP
       req.setAttribute("activities", activities);
-      req.getRequestDispatcher("/WEB-INF/views/activities.jsp").forward(req, resp);
+      RequestDispatcher dispatcher = req.getRequestDispatcher("/WEB-INF/views/activities.jsp");
+      dispatcher.forward(req, resp);
     } catch (SQLException e) {
       try {
         connection.rollback();
@@ -54,19 +53,16 @@ public class ActivityServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    // Получаем действие из параметров запроса
     String action = req.getParameter("action");
 
     try {
       switch (action) {
         case "add":
-          connection.setAutoCommit(false);
           connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
           addActivity(req);
           connection.commit();
           break;
         case "delete":
-          connection.setAutoCommit(false);
           connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
           deleteActivity(req);
           connection.commit();
@@ -82,13 +78,9 @@ public class ActivityServlet extends HttpServlet {
         throw new ServletException("Ошибка отката транзакции", rollbackEx);
       }
       throw new ServletException("Ошибка при обработке действия", e);
-    } finally {
-      try {
-        connection.setAutoCommit(true);
-      } catch (SQLException e) {
-        throw new ServletException("Не удалось вернуть авто-коммит", e);
-      }
     }
+    // Не меняем autoCommit обратно на true
+    // Оставляем autoCommit в false, как было установлено в init()
 
     // Перенаправляем пользователя обратно на страницу активности
     resp.sendRedirect("activity");
@@ -98,6 +90,17 @@ public class ActivityServlet extends HttpServlet {
   private void addActivity(HttpServletRequest req) throws SQLException {
     Long userId = Long.parseLong(req.getParameter("userId"));
     String description = req.getParameter("description");
+
+    // Проверяем, существует ли пользователь
+    String checkUserSql = "SELECT COUNT(*) FROM users WHERE id = ?";
+    try (PreparedStatement checkUserStmt = connection.prepareStatement(checkUserSql)) {
+      checkUserStmt.setLong(1, userId);
+      try (ResultSet rs = checkUserStmt.executeQuery()) {
+        if (rs.next() && rs.getInt(1) == 0) {
+          throw new SQLException("Пользователь с ID " + userId + " не существует.");
+        }
+      }
+    }
 
     String sql = "INSERT INTO activities (user_id, description) VALUES (?, ?)";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
