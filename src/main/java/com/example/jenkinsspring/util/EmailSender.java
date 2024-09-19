@@ -18,8 +18,8 @@ public class EmailSender {
     props.put("mail.smtp.starttls.enable", "true");
 
     // Учетные данные
-    final String username = "your_email@gmail.com"; // Замените на ваш email
-    final String password = "your_app_password"; // Замените на ваш пароль приложения
+    final String username = "gaydabura.d1@gmail.com"; // Замените на ваш email
+    final String password = "urme vzso taig veia"; // Замените на ваш пароль приложения
 
     // Создание сессии
     Session session = Session.getInstance(props, new Authenticator() {
