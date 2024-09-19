@@ -15,7 +15,12 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -33,6 +38,9 @@ public class ActivityServlet extends HttpServlet {
   private String telegramBotToken;
   private String telegramBotUsername;
   private String telegramChatId;
+
+  // Планировщик задач
+  private ScheduledExecutorService scheduler;
 
   @Override
   public void init() throws ServletException {
@@ -56,6 +64,10 @@ public class ActivityServlet extends HttpServlet {
       if (telegramBotToken == null || telegramBotUsername == null || telegramChatId == null) {
         throw new ServletException("Telegram configuration is missing. Please set TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, and TELEGRAM_CHAT_ID environment variables.");
       }
+
+      // Инициализация планировщика задач
+      scheduler = Executors.newSingleThreadScheduledExecutor();
+      scheduleDailyReport();
 
     } catch (ClassNotFoundException | SQLException e) {
       throw new ServletException("Не удалось подключиться к базе данных", e);
@@ -217,5 +229,67 @@ public class ActivityServlet extends HttpServlet {
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  private void handleSendReportInternal() throws SQLException, MessagingException, IOException, TelegramApiException {
+    List<Activity> activities = activityService.getAllActivities();
+
+    // Указываем путь для сохранения отчета
+    String reportsDirPath = getServletContext().getRealPath("/WEB-INF/reports/");
+    File reportsDir = new File(reportsDirPath);
+    if (!reportsDir.exists()) {
+      reportsDir.mkdirs();
+    }
+
+    String filePath = reportsDirPath + "activity_report.pdf";
+
+    // Генерируем PDF отчет
+    ReportGenerator.generateActivityReport(activities, filePath);
+
+    // Отправляем отчет по электронной почте
+    String toEmail = "gaydabura.d@icloud.com"; // Укажите ваш адрес электронной почты
+    String subject = "User Activity Report";
+    String body = "Hi,\n\nActivity report is attached below.\n\nBest regards";
+
+    EmailSender.sendEmailWithAttachment(toEmail, subject, body, filePath);
+
+    // Отправляем отчет в Telegram
+    sendReportToTelegram(filePath);
+
+    // Удаляем отчет после отправки
+    File reportFile = new File(filePath);
+    if (reportFile.exists()) {
+      reportFile.delete();
+    }
+  }
+
+  private void scheduleDailyReport() {
+    // Текущее время
+    LocalDateTime now = LocalDateTime.now();
+
+    // Время следующего запуска в 21:00
+    LocalDateTime nextRun = now.withHour(12).withMinute(53).withSecond(0).withNano(0);
+    if (now.compareTo(nextRun) >= 0) {
+      nextRun = nextRun.plusDays(1);
+    }
+
+    // Вычисляем задержку в секундах до следующего запуска
+    long initialDelay = Duration.between(now, nextRun).getSeconds();
+
+    // Период выполнения (1 день в секундах)
+    long period = TimeUnit.DAYS.toSeconds(1);
+
+    scheduler.scheduleAtFixedRate(() -> {
+      try {
+        System.out.println("Запуск автоматической отправки отчёта: " + LocalDateTime.now());
+        handleSendReportInternal();
+        System.out.println("Отчёт успешно отправлен автоматически.");
+      } catch (Exception e) {
+        e.printStackTrace();
+        // Можно добавить логирование ошибок
+      }
+    }, initialDelay, period, TimeUnit.SECONDS);
+
+    System.out.println("Планировщик отчётов запущен. Следующий запуск в: " + nextRun);
   }
 }
