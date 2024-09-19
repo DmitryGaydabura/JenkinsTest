@@ -8,17 +8,31 @@ import com.example.jenkinsspring.service.ActivityService;
 import com.example.jenkinsspring.service.ActivityServiceImpl;
 import com.example.jenkinsspring.util.EmailSender;
 import com.example.jenkinsspring.util.ReportGenerator;
+import com.example.jenkinsspring.util.TelegramSender;
 import jakarta.mail.MessagingException;
-import javax.servlet.*;
-import javax.servlet.http.*;
 import java.io.File;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class ActivityServlet extends HttpServlet {
   private Connection connection;
   private ActivityService activityService;
+
+  // Конфигурация Telegram
+  private String telegramBotToken;
+  private String telegramBotUsername;
+  private String telegramChatId;
 
   @Override
   public void init() throws ServletException {
@@ -33,6 +47,15 @@ public class ActivityServlet extends HttpServlet {
       // Инициализация DAO и сервиса
       ActivityDAO activityDAO = new ActivityDAOImpl(connection);
       activityService = new ActivityServiceImpl(activityDAO);
+
+      // Получение конфигурации Telegram из переменных окружения
+      telegramBotToken = System.getenv("6516869813:AAF_VFQgr500uGSx2bKxC_Ij6_xH5ToZSZ0");
+      telegramBotUsername = System.getenv("testLab1011_bot");
+      telegramChatId = System.getenv("387753803");
+
+      if (telegramBotToken == null || telegramBotUsername == null || telegramChatId == null) {
+        throw new ServletException("Telegram configuration is missing. Please set TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, and TELEGRAM_CHAT_ID environment variables.");
+      }
 
     } catch (ClassNotFoundException | SQLException e) {
       throw new ServletException("Не удалось подключиться к базе данных", e);
@@ -99,7 +122,7 @@ public class ActivityServlet extends HttpServlet {
         throw new ServletException("Ошибка отката транзакции", ex);
       }
       req.getSession().setAttribute("errorMessage", e.getMessage());
-    } catch (SQLException | MessagingException e) {
+    } catch (SQLException | MessagingException | TelegramApiException e) {
       try {
         connection.rollback();
       } catch (SQLException ex) {
@@ -134,34 +157,55 @@ public class ActivityServlet extends HttpServlet {
     req.getSession().setAttribute("message", "Активность успешно удалена.");
   }
 
-  private void handleSendReport(HttpServletRequest req) throws SQLException, MessagingException, IOException {
+  private void handleSendReport(HttpServletRequest req) throws SQLException, MessagingException, IOException, TelegramApiException {
     List<Activity> activities = activityService.getAllActivities();
 
-    // Путь для сохранения отчета
+    // Указываем путь для сохранения отчета
     String reportsDirPath = getServletContext().getRealPath("/WEB-INF/reports/");
     File reportsDir = new File(reportsDirPath);
     if (!reportsDir.exists()) {
       reportsDir.mkdirs();
     }
+
     String filePath = reportsDirPath + "activity_report.pdf";
 
-    // Генерация отчета
+    // Генерируем PDF отчет
     ReportGenerator.generateActivityReport(activities, filePath);
 
-    // Отправка отчета по почте
-    String toEmail = "your_email@example.com"; // Замените на ваш email
-    String subject = "Отчет о активности пользователей";
-    String body = "Здравствуйте,\n\nОтчет о активности пользователей во вложении.\n\nС уважением,\nКоманда";
+    // Отправляем отчет по электронной почте
+    String toEmail = "gaydabura.d@icloud.com"; // Укажите ваш адрес электронной почты
+    String subject = "User Activity Report";
+    String body = "Hi,\n\nActivity report is attached below.\n\nBest regards";
 
     EmailSender.sendEmailWithAttachment(toEmail, subject, body, filePath);
 
-    // Удаление файла отчета
+    // Отправляем отчет в Telegram
+    sendReportToTelegram(filePath);
+
+    // Удаляем отчет после отправки
     File reportFile = new File(filePath);
     if (reportFile.exists()) {
       reportFile.delete();
     }
 
-    req.getSession().setAttribute("message", "Отчет успешно отправлен на вашу почту.");
+    req.getSession().setAttribute("message", "Great! Report was sent to your email and Telegram.");
+  }
+
+  private void sendReportToTelegram(String filePath) throws TelegramApiException {
+    TelegramSender telegramSender = new TelegramSender(telegramBotToken, telegramBotUsername);
+
+    // Регистрируем бота
+    TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+    try {
+      botsApi.registerBot(telegramSender);
+    } catch (TelegramApiException e) {
+      throw e; // Передаем дальше для обработки в вызывающем методе
+    }
+
+    File reportFile = new File(filePath);
+    String caption = "Отчет о активности пользователей";
+
+    telegramSender.sendDocument(telegramChatId, reportFile, caption);
   }
 
   @Override
