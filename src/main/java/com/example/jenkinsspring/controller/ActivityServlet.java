@@ -49,9 +49,9 @@ public class ActivityServlet extends HttpServlet {
       activityService = new ActivityServiceImpl(activityDAO);
 
       // Получение конфигурации Telegram из переменных окружения
-      telegramBotToken = System.getenv("6516869813:AAF_VFQgr500uGSx2bKxC_Ij6_xH5ToZSZ0");
-      telegramBotUsername = System.getenv("testLab1011_bot");
-      telegramChatId = System.getenv("387753803");
+      telegramBotToken = "6516869813:AAF_VFQgr500uGSx2bKxC_Ij6_xH5ToZSZ0";
+      telegramBotUsername = "testLab1011_bot";
+      telegramChatId = "387753803";
 
       if (telegramBotToken == null || telegramBotUsername == null || telegramChatId == null) {
         throw new ServletException("Telegram configuration is missing. Please set TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, and TELEGRAM_CHAT_ID environment variables.");
