@@ -21,7 +21,7 @@ import java.util.List;
 public class UserApiServlet extends HttpServlet {
 
   private UserService userService;
-  private Gson gson = new Gson();
+  private final Gson gson = new Gson();
 
   @Override
   public void init() throws ServletException {

@@ -22,7 +22,7 @@ import java.util.List;
 public class ActivityApiServlet extends HttpServlet {
 
   private ActivityService activityService;
-  private Gson gson = new Gson();
+  private final Gson gson = new Gson();
 
   @Override
   public void init() throws ServletException {
@@ -97,7 +97,7 @@ public class ActivityApiServlet extends HttpServlet {
     }
 
     String idStr = pathInfo.substring(1); // Удаляем первый символ '/'
-    Long id;
+    long id;
     try {
       id = Long.parseLong(idStr);
     } catch (NumberFormatException e) {
@@ -134,7 +134,7 @@ public class ActivityApiServlet extends HttpServlet {
     }
 
     String idStr = pathInfo.substring(1); // Удаляем первый символ '/'
-    Long id;
+    long id;
     try {
       id = Long.parseLong(idStr);
     } catch (NumberFormatException e) {
