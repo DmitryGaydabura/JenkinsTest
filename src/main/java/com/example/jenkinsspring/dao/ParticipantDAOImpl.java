@@ -52,4 +52,14 @@ public class ParticipantDAOImpl implements ParticipantDAO {
     }
     return participants;
   }
+
+  public boolean deleteParticipantById(int id) throws SQLException {
+    String query = "DELETE FROM participants WHERE id = ?";
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
+      statement.setInt(1, id);
+      int rowsAffected = statement.executeUpdate();
+      return rowsAffected > 0; // true, если удалён хотя бы один участник
+    }
+  }
+
 }

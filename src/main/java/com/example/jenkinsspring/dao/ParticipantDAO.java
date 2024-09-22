@@ -7,5 +7,7 @@ import java.util.List;
 public interface ParticipantDAO {
   void addParticipant(Participant participant) throws SQLException;
   List<Participant> getParticipantsByTeam(String team) throws SQLException;
+
+  boolean deleteParticipantById(int id) throws SQLException;
 }
 

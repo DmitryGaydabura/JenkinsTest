@@ -40,6 +40,11 @@ public class ParticipantServiceImpl implements ParticipantService {
   }
 
   @Override
+  public boolean deleteParticipantById(int id) throws SQLException {
+    return participantDAO.deleteParticipantById(id);
+  }
+
+  @Override
   public void closeConnection() throws SQLException {
     if (connection != null && !connection.isClosed()) {
       connection.close();

@@ -97,6 +97,38 @@ public class AddParticipantServlet extends HttpServlet {
   }
 
   @Override
+  protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String participantId = req.getParameter("id");
+
+    if (participantId == null || participantId.isEmpty()) {
+      resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Participant ID is required");
+      return;
+    }
+
+    try {
+      int id = Integer.parseInt(participantId);
+
+      boolean isDeleted = participantService.deleteParticipantById(id);
+
+      if (isDeleted) {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        PrintWriter out = resp.getWriter();
+        out.print(gson.toJson(new ApiResponse("Participant deleted successfully")));
+        out.flush();
+      } else {
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Participant not found");
+      }
+    } catch (NumberFormatException e) {
+      resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid participant ID");
+    } catch (SQLException e) {
+      e.printStackTrace();
+      resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error deleting participant");
+    }
+  }
+
+  @Override
   public void destroy() {
     super.destroy();
     // Закрытие соединения с БД при уничтожении сервлета
