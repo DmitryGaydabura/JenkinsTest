@@ -13,6 +13,10 @@ public class ActivityDAOImpl implements ActivityDAO {
     this.connection = connection;
   }
 
+  public Connection getConnection() {
+    return this.connection;
+  }
+
   @Override
   public void addActivity(Activity activity) throws SQLException {
     // Проверка существования пользователя
@@ -27,7 +31,7 @@ public class ActivityDAOImpl implements ActivityDAO {
           throw new UserNotFoundException("Пользователь с ID " + activity.getUserId() + " не найден.");
         }
       } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
+        throw new SQLException(e);
       }
     }
 
@@ -43,6 +47,21 @@ public class ActivityDAOImpl implements ActivityDAO {
         if (generatedKeys.next()) {
           activity.setId(generatedKeys.getLong(1));
         }
+      }
+    }
+  }
+
+  @Override
+  public void updateActivity(Activity activity) throws SQLException {
+    String sql = "UPDATE activities SET user_id = ?, description = ? WHERE id = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+      stmt.setLong(1, activity.getUserId());
+      stmt.setString(2, activity.getDescription());
+      stmt.setLong(3, activity.getId());
+
+      int rowsUpdated = stmt.executeUpdate();
+      if (rowsUpdated == 0) {
+        throw new SQLException("Нет активности с ID " + activity.getId());
       }
     }
   }

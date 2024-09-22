@@ -7,6 +7,9 @@ import java.util.List;
 
 public interface ActivityService {
   void addActivity(Activity activity) throws SQLException, UserNotFoundException;
+  void updateActivity(Activity activity) throws SQLException;
   void deleteActivity(Long id) throws SQLException;
   List<Activity> getAllActivities() throws SQLException;
+  void commitConnection() throws SQLException;
+  void closeConnection() throws SQLException;
 }

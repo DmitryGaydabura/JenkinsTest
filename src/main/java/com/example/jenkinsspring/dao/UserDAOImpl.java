@@ -12,6 +12,10 @@ public class UserDAOImpl implements UserDAO {
     this.connection = connection;
   }
 
+  public Connection getConnection() {
+    return this.connection;
+  }
+
   @Override
   public void addUser(User user) throws SQLException {
     String sql = "INSERT INTO users (first_name, last_name, age, team) VALUES (?, ?, ?, ?)";
@@ -65,7 +69,6 @@ public class UserDAOImpl implements UserDAO {
     return userList;
   }
 
-
   @Override
   public void deleteUser(Long id) throws SQLException {
     String sql = "DELETE FROM users WHERE id = ?";
@@ -114,6 +117,9 @@ public class UserDAOImpl implements UserDAO {
     return null;
   }
 
-
-
+  public void closeConnection() throws SQLException {
+    if (connection != null && !connection.isClosed()) {
+      connection.close();
+    }
+  }
 }
