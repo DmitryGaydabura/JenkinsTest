@@ -49,7 +49,11 @@ public class ActivityServlet extends HttpServlet {
       // Initialize driver and database connection
       Class.forName("org.postgresql.Driver");
       connection = DriverManager.getConnection(
-          "my-postgres-db.cn4kwmqcw0p8.eu-north-1.rds.amazonaws.com:5432/postgres", "postgres", "xAMP89zuA7TkEDVLYUn2");
+          "jdbc:postgresql://my-postgres-db.cn4kwmqcw0p8.eu-north-1.rds.amazonaws.com:5432/postgres",
+          "postgres",
+          "xAMP89zuA7TkEDVLYUn2"
+      );
+
       connection.setAutoCommit(false);
       connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
