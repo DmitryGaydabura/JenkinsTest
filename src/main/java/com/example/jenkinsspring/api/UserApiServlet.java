@@ -26,6 +26,13 @@ public class UserApiServlet extends HttpServlet {
   @Override
   public void init() throws ServletException {
     try {
+      Class.forName("org.postgresql.Driver");
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      throw new ServletException("PostgreSQL JDBC Driver not found", e);
+    }
+
+    try {
       // Инициализация соединения с базой данных
       Connection connection = DriverManager.getConnection(
           "jdbc:postgresql://my-postgres-db.cn4kwmqcw0p8.eu-north-1.rds.amazonaws.com:5432/postgres",
