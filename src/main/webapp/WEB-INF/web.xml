@@ -70,6 +70,16 @@
     <url-pattern>/api/teams/*</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>GetParticipantPairsServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.GetParticipantPairsServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>GetParticipantPairsServlet</servlet-name>
+    <url-pattern>/api/getPairs/*</url-pattern>
+  </servlet-mapping>
+
 
 
 </web-app>
