@@ -40,7 +40,7 @@
 
   <servlet>
     <servlet-name>EmailSendServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.TelegramSendServlet</servlet-class>
+    <servlet-class>com.example.jenkinsspring.api.EmailSendServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
