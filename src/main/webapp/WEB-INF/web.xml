@@ -67,7 +67,7 @@
 
   <servlet-mapping>
     <servlet-name>GetParticipantsByTeamServlet</servlet-name>
-    <url-pattern>/api/teams/*/participants</url-pattern>
+    <url-pattern>/api/teams/*</url-pattern>
   </servlet-mapping>
 
 
