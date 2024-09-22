@@ -58,8 +58,18 @@ public class ParticipantDAOImpl implements ParticipantDAO {
     try (PreparedStatement statement = connection.prepareStatement(query)) {
       statement.setInt(1, id);
       int rowsAffected = statement.executeUpdate();
-      return rowsAffected > 0; // true, если удалён хотя бы один участник
+
+      // Если строка была удалена, фиксируем транзакцию
+      if (rowsAffected > 0) {
+        connection.commit(); // Явный commit транзакции
+      }
+
+      return rowsAffected > 0;
+    } catch (SQLException e) {
+      connection.rollback(); // Откат в случае ошибки
+      throw e;
     }
   }
+
 
 }
