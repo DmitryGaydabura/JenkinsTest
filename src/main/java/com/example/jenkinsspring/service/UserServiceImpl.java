@@ -31,4 +31,13 @@ public class UserServiceImpl implements UserService {
   public List<User> getAllUsers() throws SQLException {
     return userDAO.getAllUsers();
   }
+  @Override
+  public User getUserById(Long id) throws SQLException {
+    return userDAO.getUserById(id);
+  }
+
+  @Override
+  public List<User> getUsersByTeam(String team) throws SQLException {
+    return userDAO.getUsersByTeam(team);
+  }
 }

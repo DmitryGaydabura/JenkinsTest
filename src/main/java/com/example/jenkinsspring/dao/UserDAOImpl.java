@@ -14,11 +14,12 @@ public class UserDAOImpl implements UserDAO {
 
   @Override
   public void addUser(User user) throws SQLException {
-    String sql = "INSERT INTO users (first_name, last_name, age) VALUES (?, ?, ?)";
+    String sql = "INSERT INTO users (first_name, last_name, age, team) VALUES (?, ?, ?, ?)";
     try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
       stmt.setString(1, user.getFirstName());
       stmt.setString(2, user.getLastName());
       stmt.setInt(3, user.getAge());
+      stmt.setString(4, user.getTeam()); // Устанавливаем команду
       stmt.executeUpdate();
 
       // Получаем сгенерированный ID пользователя
@@ -32,15 +33,38 @@ public class UserDAOImpl implements UserDAO {
 
   @Override
   public void updateUser(User user) throws SQLException {
-    String sql = "UPDATE users SET first_name = ?, last_name = ?, age = ? WHERE id = ?";
+    String sql = "UPDATE users SET first_name = ?, last_name = ?, age = ?, team = ? WHERE id = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
       stmt.setString(1, user.getFirstName());
       stmt.setString(2, user.getLastName());
       stmt.setInt(3, user.getAge());
-      stmt.setLong(4, user.getId());
+      stmt.setString(4, user.getTeam());
+      stmt.setLong(5, user.getId());
       stmt.executeUpdate();
     }
   }
+
+  @Override
+  public List<User> getUsersByTeam(String team) throws SQLException {
+    List<User> userList = new ArrayList<>();
+    String sql = "SELECT id, first_name, last_name, age, team FROM users WHERE team = ? ORDER BY id";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+      stmt.setString(1, team);
+      try (ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+          User user = new User();
+          user.setId(rs.getLong("id"));
+          user.setFirstName(rs.getString("first_name"));
+          user.setLastName(rs.getString("last_name"));
+          user.setAge(rs.getInt("age"));
+          user.setTeam(rs.getString("team"));
+          userList.add(user);
+        }
+      }
+    }
+    return userList;
+  }
+
 
   @Override
   public void deleteUser(Long id) throws SQLException {
@@ -69,4 +93,27 @@ public class UserDAOImpl implements UserDAO {
     }
     return userList;
   }
+
+  @Override
+  public User getUserById(Long id) throws SQLException {
+    String sql = "SELECT id, first_name, last_name, age, team FROM users WHERE id = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+      stmt.setLong(1, id);
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (rs.next()) {
+          User user = new User();
+          user.setId(rs.getLong("id"));
+          user.setFirstName(rs.getString("first_name"));
+          user.setLastName(rs.getString("last_name"));
+          user.setAge(rs.getInt("age"));
+          user.setTeam(rs.getString("team"));
+          return user;
+        }
+      }
+    }
+    return null;
+  }
+
+
+
 }
