@@ -32,6 +32,14 @@ public class TelegramSendServlet extends HttpServlet {
 
   @Override
   public void init() throws ServletException {
+
+    try {
+      Class.forName("org.postgresql.Driver");
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      throw new ServletException("PostgreSQL JDBC Driver not found", e);
+    }
+
     super.init();
     // Инициализация TelegramSender с токеном и именем бота
     String botToken = "6516869813:AAF_VFQgr500uGSx2bKxC_Ij6_xH5ToZSZ0"; // Ваш токен
