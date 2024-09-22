@@ -1,23 +1,21 @@
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
-                             http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+             http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
   version="3.1">
 
-  <!-- Jersey Servlet -->
   <servlet>
     <servlet-name>JerseyServlet</servlet-name>
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>jersey.config.server.provider.packages</param-name>
-      <param-value>com.example.jenkinsspring.api</param-value>
+      <param-value>com.example.jenkinsspring.api</param-value> <!-- Ensure this is correct -->
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
   <servlet-mapping>
     <servlet-name>JerseyServlet</servlet-name>
-    <url-pattern>/api/*</url-pattern>
+    <url-pattern>/app/*</url-pattern>
   </servlet-mapping>
-
 </web-app>

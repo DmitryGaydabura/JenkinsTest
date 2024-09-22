@@ -19,24 +19,34 @@
   <dependencies>
     <!-- Servlet API -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.1</version>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>5.0.0</version>
       <scope>provided</scope>
     </dependency>
 
-    <!-- Jersey dependencies -->
+
+    <!-- Jersey core dependencies -->
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>3.0.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-server</artifactId>
+      <version>3.0.4</version>
+    </dependency>
+
+    <!-- Jersey Servlet -->
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-servlet</artifactId>
       <version>3.0.4</version>
     </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.inject</groupId>
-      <artifactId>jersey-hk2</artifactId>
-      <version>3.0.4</version>
-    </dependency>
-    <!-- JSON Processing -->
+
+    <!-- Jersey JSON support -->
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-binding</artifactId>
@@ -49,6 +59,7 @@
       <artifactId>postgresql</artifactId>
       <version>42.7.4</version>
     </dependency>
+
 
     <!-- iText для PDF -->
     <dependency>
