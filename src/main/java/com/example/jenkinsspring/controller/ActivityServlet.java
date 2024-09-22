@@ -31,53 +31,56 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class ActivityServlet extends HttpServlet {
+
   private Connection connection;
   private ActivityService activityService;
 
-  // Конфигурация Telegram
+  // Telegram Configuration
   private String telegramBotToken;
   private String telegramBotUsername;
   private String telegramChatId;
 
-  // Планировщик задач
+  // Task Scheduler
   private ScheduledExecutorService scheduler;
 
   @Override
   public void init() throws ServletException {
     try {
-      // Инициализация драйвера и соединения с базой данных
+      // Initialize driver and database connection
       Class.forName("org.postgresql.Driver");
       connection = DriverManager.getConnection(
-          "jdbc:postgresql://192.168.64.5:5432/mydatabase", "myuser", "mypassword");
+          "my-postgres-db.cn4kwmqcw0p8.eu-north-1.rds.amazonaws.com:5432/postgres", "postgres", "xAMP89zuA7TkEDVLYUn2");
       connection.setAutoCommit(false);
       connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
-      // Инициализация DAO и сервиса
+      // Initialize DAO and Service
       ActivityDAO activityDAO = new ActivityDAOImpl(connection);
       activityService = new ActivityServiceImpl(activityDAO);
 
-      // Получение конфигурации Telegram из переменных окружения
+      // Retrieve Telegram configuration from environment variables
       telegramBotToken = "6516869813:AAF_VFQgr500uGSx2bKxC_Ij6_xH5ToZSZ0";
       telegramBotUsername = "testLab1011_bot";
       telegramChatId = "387753803";
 
       if (telegramBotToken == null || telegramBotUsername == null || telegramChatId == null) {
-        throw new ServletException("Telegram configuration is missing. Please set TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, and TELEGRAM_CHAT_ID environment variables.");
+        throw new ServletException(
+            "Telegram configuration is missing. Please set TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME, and TELEGRAM_CHAT_ID environment variables.");
       }
 
-      // Инициализация планировщика задач
+      // Initialize Task Scheduler
       scheduler = Executors.newSingleThreadScheduledExecutor();
       scheduleDailyReport();
 
     } catch (ClassNotFoundException | SQLException e) {
-      throw new ServletException("Не удалось подключиться к базе данных", e);
+      throw new ServletException("Failed to connect to the database", e);
     }
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     try {
-      // Извлекаем сообщения из сессии
+      // Retrieve messages from session
       String message = (String) req.getSession().getAttribute("message");
       String errorMessage = (String) req.getSession().getAttribute("errorMessage");
 
@@ -101,14 +104,15 @@ public class ActivityServlet extends HttpServlet {
       try {
         connection.rollback();
       } catch (SQLException ex) {
-        throw new ServletException("Ошибка отката транзакции", ex);
+        throw new ServletException("Transaction rollback error", ex);
       }
-      throw new ServletException("Ошибка при получении активностей", e);
+      throw new ServletException("Error retrieving activities", e);
     }
   }
 
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
     String action = req.getParameter("action");
 
     try {
@@ -123,7 +127,7 @@ public class ActivityServlet extends HttpServlet {
           handleSendReport(req);
           break;
         default:
-          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Неизвестное действие");
+          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action");
           return;
       }
       connection.commit();
@@ -131,27 +135,28 @@ public class ActivityServlet extends HttpServlet {
       try {
         connection.rollback();
       } catch (SQLException ex) {
-        throw new ServletException("Ошибка отката транзакции", ex);
+        throw new ServletException("Transaction rollback error", ex);
       }
       req.getSession().setAttribute("errorMessage", e.getMessage());
     } catch (SQLException | MessagingException | TelegramApiException e) {
       try {
         connection.rollback();
       } catch (SQLException ex) {
-        throw new ServletException("Ошибка отката транзакции", ex);
+        throw new ServletException("Transaction rollback error", ex);
       }
-      throw new ServletException("Ошибка при обработке действия", e);
+      throw new ServletException("Error processing action", e);
     }
 
     resp.sendRedirect("activity");
   }
 
-  private void handleAddActivity(HttpServletRequest req) throws SQLException, UserNotFoundException {
+  private void handleAddActivity(HttpServletRequest req)
+      throws SQLException, UserNotFoundException {
     Long userId;
     try {
       userId = Long.parseLong(req.getParameter("userId"));
     } catch (NumberFormatException e) {
-      throw new UserNotFoundException("Некорректный ID пользователя.");
+      throw new UserNotFoundException("Invalid user ID.");
     }
     String description = req.getParameter("description");
 
@@ -160,19 +165,26 @@ public class ActivityServlet extends HttpServlet {
     activity.setDescription(description);
 
     activityService.addActivity(activity);
-    req.getSession().setAttribute("message", "Активность успешно добавлена.");
+    req.getSession().setAttribute("message", "Activity successfully added.");
   }
 
   private void handleDeleteActivity(HttpServletRequest req) throws SQLException {
     Long id = Long.parseLong(req.getParameter("id"));
     activityService.deleteActivity(id);
-    req.getSession().setAttribute("message", "Активность успешно удалена.");
+    req.getSession().setAttribute("message", "Activity successfully deleted.");
   }
 
-  private void handleSendReport(HttpServletRequest req) throws SQLException, MessagingException, IOException, TelegramApiException {
+  private void handleSendReport(HttpServletRequest req)
+      throws SQLException, MessagingException, IOException, TelegramApiException {
+    handleSendReportInternal();
+    req.getSession().setAttribute("message", "Great! Report was sent to your email and Telegram.");
+  }
+
+  private void handleSendReportInternal()
+      throws SQLException, MessagingException, IOException, TelegramApiException {
     List<Activity> activities = activityService.getAllActivities();
 
-    // Указываем путь для сохранения отчета
+    // Specify the path to save the report
     String reportsDirPath = getServletContext().getRealPath("/WEB-INF/reports/");
     File reportsDir = new File(reportsDirPath);
     if (!reportsDir.exists()) {
@@ -181,41 +193,39 @@ public class ActivityServlet extends HttpServlet {
 
     String filePath = reportsDirPath + "activity_report.pdf";
 
-    // Генерируем PDF отчет
+    // Generate PDF report
     ReportGenerator.generateActivityReport(activities, filePath);
 
-    // Отправляем отчет по электронной почте
-    String toEmail = "gaydabura.d@icloud.com"; // Укажите ваш адрес электронной почты
+    // Send report via email
+    String toEmail = "gaydabura.d@icloud.com";
     String subject = "User Activity Report";
     String body = "Hi,\n\nActivity report is attached below.\n\nBest regards";
 
     EmailSender.sendEmailWithAttachment(toEmail, subject, body, filePath);
 
-    // Отправляем отчет в Telegram
+    // Send report via Telegram
     sendReportToTelegram(filePath);
 
-    // Удаляем отчет после отправки
+    // Delete the report after sending
     File reportFile = new File(filePath);
     if (reportFile.exists()) {
       reportFile.delete();
     }
-
-    req.getSession().setAttribute("message", "Great! Report was sent to your email and Telegram.");
   }
 
   private void sendReportToTelegram(String filePath) throws TelegramApiException {
     TelegramSender telegramSender = new TelegramSender(telegramBotToken, telegramBotUsername);
 
-    // Регистрируем бота
+    // Register the bot
     TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
     try {
       botsApi.registerBot(telegramSender);
     } catch (TelegramApiException e) {
-      throw e; // Передаем дальше для обработки в вызывающем методе
+      throw e;
     }
 
     File reportFile = new File(filePath);
-    String caption = "Отчет о активности пользователей";
+    String caption = "User Activity Report";
 
     telegramSender.sendDocument(telegramChatId, reportFile, caption);
   }
@@ -229,67 +239,50 @@ public class ActivityServlet extends HttpServlet {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-  }
 
-  private void handleSendReportInternal() throws SQLException, MessagingException, IOException, TelegramApiException {
-    List<Activity> activities = activityService.getAllActivities();
-
-    // Указываем путь для сохранения отчета
-    String reportsDirPath = getServletContext().getRealPath("/WEB-INF/reports/");
-    File reportsDir = new File(reportsDirPath);
-    if (!reportsDir.exists()) {
-      reportsDir.mkdirs();
-    }
-
-    String filePath = reportsDirPath + "activity_report.pdf";
-
-    // Генерируем PDF отчет
-    ReportGenerator.generateActivityReport(activities, filePath);
-
-    // Отправляем отчет по электронной почте
-    String toEmail = "gaydabura.d@icloud.com"; // Укажите ваш адрес электронной почты
-    String subject = "User Activity Report";
-    String body = "Hi,\n\nActivity report is attached below.\n\nBest regards";
-
-    EmailSender.sendEmailWithAttachment(toEmail, subject, body, filePath);
-
-    // Отправляем отчет в Telegram
-    sendReportToTelegram(filePath);
-
-    // Удаляем отчет после отправки
-    File reportFile = new File(filePath);
-    if (reportFile.exists()) {
-      reportFile.delete();
+    // Shutdown the scheduler
+    if (scheduler != null && !scheduler.isShutdown()) {
+      scheduler.shutdown();
+      try {
+        if (!scheduler.awaitTermination(30, TimeUnit.SECONDS)) {
+          scheduler.shutdownNow();
+        }
+      } catch (InterruptedException e) {
+        scheduler.shutdownNow();
+        Thread.currentThread().interrupt();
+      }
     }
   }
 
+  /**
+   * Schedules the daily report to be sent at 21:00
+   */
   private void scheduleDailyReport() {
-    // Текущее время
+    // Current time
     LocalDateTime now = LocalDateTime.now();
 
-    // Время следующего запуска в 21:00
-    LocalDateTime nextRun = now.withHour(12).withMinute(53).withSecond(0).withNano(0);
+    // Next run time at 21:00
+    LocalDateTime nextRun = now.withHour(21).withMinute(0).withSecond(0).withNano(0);
     if (now.compareTo(nextRun) >= 0) {
       nextRun = nextRun.plusDays(1);
     }
 
-    // Вычисляем задержку в секундах до следующего запуска
+    // Calculate initial delay in seconds until next run
     long initialDelay = Duration.between(now, nextRun).getSeconds();
 
-    // Период выполнения (1 день в секундах)
+    // Period of execution (1 day in seconds)
     long period = TimeUnit.DAYS.toSeconds(1);
 
     scheduler.scheduleAtFixedRate(() -> {
       try {
-        System.out.println("Запуск автоматической отправки отчёта: " + LocalDateTime.now());
+        System.out.println("Initiating automatic report sending: " + LocalDateTime.now());
         handleSendReportInternal();
-        System.out.println("Отчёт успешно отправлен автоматически.");
+        System.out.println("Report successfully sent automatically.");
       } catch (Exception e) {
         e.printStackTrace();
-        // Можно добавить логирование ошибок
       }
     }, initialDelay, period, TimeUnit.SECONDS);
 
-    System.out.println("Планировщик отчётов запущен. Следующий запуск в: " + nextRun);
+    System.out.println("Report scheduler started. Next run at: " + nextRun);
   }
 }
