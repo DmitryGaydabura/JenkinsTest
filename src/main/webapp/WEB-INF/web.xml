@@ -27,5 +27,17 @@
     <url-pattern>/api/activities/*</url-pattern>
   </servlet-mapping>
 
+  <!-- TelegramSendServlet для отправки сообщений в Telegram -->
+  <servlet>
+    <servlet-name>TelegramSendServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.TelegramSendServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>TelegramSendServlet</servlet-name>
+    <url-pattern>/api/telegram/send</url-pattern>
+  </servlet-mapping>
+
+
 
 </web-app>
