@@ -4,15 +4,6 @@
              http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
   version="3.1">
 
-  <!-- CORS Filter (добавим позже) -->
-  <filter>
-    <filter-name>CORSFilter</filter-name>
-    <filter-class>com.example.jenkinsspring.filter.CORSFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>CORSFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
 
   <!-- UserServlet для REST API -->
   <servlet>
