@@ -48,5 +48,28 @@
     <url-pattern>/api/email/send</url-pattern>
   </servlet-mapping>
 
+  <!-- AddParticipantServlet для добавления нового участника -->
+  <servlet>
+    <servlet-name>AddParticipantServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.AddParticipantServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>AddParticipantServlet</servlet-name>
+    <url-pattern>/api/participants</url-pattern>
+  </servlet-mapping>
+
+  <!-- GetParticipantsByTeamServlet для получения участников по команде -->
+  <servlet>
+    <servlet-name>GetParticipantsByTeamServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.GetParticipantsByTeamServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>GetParticipantsByTeamServlet</servlet-name>
+    <url-pattern>/api/teams/*/participants</url-pattern>
+  </servlet-mapping>
+
+
 
 </web-app>
