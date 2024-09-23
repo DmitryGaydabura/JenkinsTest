@@ -105,6 +105,14 @@
     <servlet-name>JournalScoresServlet</servlet-name>
     <url-pattern>/api/journal/scores</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>DeleteScoresByDateServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.DeleteScoresByDateServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DeleteScoresByDateServlet</servlet-name>
+    <url-pattern>/api/journal/scores/delete</url-pattern>
+  </servlet-mapping>
 
 
   <filter>

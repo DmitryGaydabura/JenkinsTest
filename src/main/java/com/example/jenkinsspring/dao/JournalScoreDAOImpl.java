@@ -58,4 +58,13 @@ public class JournalScoreDAOImpl {
     }
     return scores;
   }
+
+  public void deleteScoresByDate(Date date) throws SQLException {
+    String query = "DELETE FROM journal_scores WHERE date = ?";
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
+      statement.setDate(1, new java.sql.Date(date.getTime()));
+      statement.executeUpdate();
+    }
+  }
+
 }
