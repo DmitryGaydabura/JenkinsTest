@@ -41,9 +41,21 @@ public class DeleteScoresByDateServlet extends HttpServlet {
     PrintWriter out = resp.getWriter();
 
     try {
-      Date date = java.sql.Date.valueOf(dateString);
-      scoreDAO.deleteScoresByDate((java.sql.Date) date);  // Удаляем оценки за эту дату
-      out.print(gson.toJson("Scores for the date deleted successfully"));
+      // Преобразование строки в java.sql.Date
+      java.sql.Date sqlDate = java.sql.Date.valueOf(dateString);
+
+      // Удаляем данные из базы
+      int rowsDeleted = scoreDAO.deleteScoresByDate(sqlDate);
+
+      if (rowsDeleted > 0) {
+        // Если были удалены строки, возвращаем успешный ответ
+        out.print(gson.toJson("Scores for the date deleted successfully"));
+        resp.setStatus(HttpServletResponse.SC_OK);
+      } else {
+        // Если не было удаленных данных, возвращаем 404
+        resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        out.print(gson.toJson("No scores found for the specified date"));
+      }
     } catch (SQLException e) {
       resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error");
       e.printStackTrace();
@@ -51,5 +63,6 @@ public class DeleteScoresByDateServlet extends HttpServlet {
       out.flush();
     }
   }
+
 }
 
