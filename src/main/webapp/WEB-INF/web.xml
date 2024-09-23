@@ -89,6 +89,15 @@
     <url-pattern>/api/journal/*</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>AddScoreServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.AddScoreServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AddScoreServlet</servlet-name>
+    <url-pattern>/api/journal/participants/*/score</url-pattern>
+  </servlet-mapping>
+
 
   <filter>
     <filter-name>CorsFilter</filter-name>
