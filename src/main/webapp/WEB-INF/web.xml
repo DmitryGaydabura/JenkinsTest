@@ -80,6 +80,16 @@
     <url-pattern>/api/getPairs/*</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>JournalServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.JournalServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>JournalServlet</servlet-name>
+    <url-pattern>/api/journal/*</url-pattern>
+  </servlet-mapping>
+
+
   <filter>
     <filter-name>CorsFilter</filter-name>
     <filter-class>com.example.jenkinsspring.filter.CorsFilter</filter-class>
