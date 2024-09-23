@@ -48,42 +48,25 @@ public class AddScoreServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     resp.setContentType("application/json");
     PrintWriter out = resp.getWriter();
-    String pathInfo = req.getPathInfo();
 
     try {
-      // Извлечение participantId из URL
-      if (pathInfo != null && pathInfo.startsWith("/participants/") && pathInfo.endsWith("/score")) {
-        String[] parts = pathInfo.split("/");
-        if (parts.length != 4) {
-          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid URL format");
-          return;
-        }
+      // Чтение тела запроса для получения participantId и данных оценки
+      BufferedReader reader = req.getReader();
+      JournalScore score = gson.fromJson(reader, JournalScore.class);
 
-        int participantId;
-        try {
-          participantId = Integer.parseInt(parts[2]);
-        } catch (NumberFormatException e) {
-          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid participant ID");
-          return;
-        }
-
-        // Чтение тела запроса для получения данных оценки
-        BufferedReader reader = req.getReader();
-        JournalScore score = gson.fromJson(reader, JournalScore.class);
-
-        if (score.getDate() == null) {
-          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required field: date");
-          return;
-        }
-
-        score.setParticipantId(participantId);
-
-        // Добавление или обновление оценки
-        scoreDAO.addOrUpdateScore(score);
-        out.print(gson.toJson("Score added/updated successfully"));
-      } else {
-        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
+      if (score.getParticipantId() <= 0) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid or missing participant ID");
+        return;
       }
+
+      if (score.getDate() == null) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required field: date");
+        return;
+      }
+
+      // Добавление или обновление оценки
+      scoreDAO.addOrUpdateScore(score);
+      out.print(gson.toJson("Score added/updated successfully"));
     } catch (JsonSyntaxException e) {
       resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JSON format");
       e.printStackTrace();
@@ -95,4 +78,3 @@ public class AddScoreServlet extends HttpServlet {
     }
   }
 }
-

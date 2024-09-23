@@ -95,7 +95,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>AddScoreServlet</servlet-name>
-    <url-pattern>/api/journal/participants/*/score</url-pattern>
+    <url-pattern>/api/journal/participants/score/*</url-pattern>
   </servlet-mapping>
 
 
