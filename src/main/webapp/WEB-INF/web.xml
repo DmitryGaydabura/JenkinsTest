@@ -97,6 +97,14 @@
     <servlet-name>AddScoreServlet</servlet-name>
     <url-pattern>/api/journal/participants/score/*</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>JournalScoresServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.JournalScoresServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>JournalScoresServlet</servlet-name>
+    <url-pattern>/api/journal/scores</url-pattern>
+  </servlet-mapping>
 
 
   <filter>

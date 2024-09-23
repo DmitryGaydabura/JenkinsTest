@@ -42,4 +42,20 @@ public class JournalScoreDAOImpl {
       statement.executeUpdate();
     }
   }
+
+  public List<JournalScore> getAllScores() throws SQLException {
+    List<JournalScore> scores = new ArrayList<>();
+    String query = "SELECT * FROM journal_scores";
+    try (Statement statement = connection.createStatement()) {
+      ResultSet rs = statement.executeQuery(query);
+      while (rs.next()) {
+        JournalScore score = new JournalScore();
+        score.setParticipantId(rs.getInt("participant_id"));
+        score.setScore(rs.getInt("score"));
+        score.setDate(rs.getDate("date"));
+        scores.add(score);
+      }
+    }
+    return scores;
+  }
 }
