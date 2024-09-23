@@ -3,17 +3,17 @@ package com.example.jenkinsspring.api;
 import com.example.jenkinsspring.dao.JournalScoreDAOImpl;
 import com.example.jenkinsspring.model.JournalScore;
 import com.google.gson.Gson;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.gson.JsonSyntaxException;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class JournalScoresServlet extends HttpServlet {
 
@@ -45,13 +45,31 @@ public class JournalScoresServlet extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     resp.setContentType("application/json");
     PrintWriter out = resp.getWriter();
 
     try {
-      List<JournalScore> scores = scoreDAO.getAllScores();  // Получаем все оценки
-      out.print(gson.toJson(scores));  // Преобразуем список в JSON и отправляем
+      // Чтение тела запроса для получения participantId и данных оценки
+      BufferedReader reader = req.getReader();
+      JournalScore score = gson.fromJson(reader, JournalScore.class);
+
+      if (score.getParticipantId() <= 0) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid or missing participant ID");
+        return;
+      }
+
+      if (score.getDate() == null) {
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required field: date");
+        return;
+      }
+
+      // Добавление или обновление оценки
+      scoreDAO.addOrUpdateScore(score);
+      out.print(gson.toJson("Score added/updated successfully"));
+    } catch (JsonSyntaxException e) {
+      resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JSON format");
+      e.printStackTrace();
     } catch (SQLException e) {
       resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error");
       e.printStackTrace();
@@ -59,4 +77,5 @@ public class JournalScoresServlet extends HttpServlet {
       out.flush();
     }
   }
+
 }
