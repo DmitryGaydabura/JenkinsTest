@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +42,24 @@ public class JournalScoresServlet extends HttpServlet {
       scoreDAO = new JournalScoreDAOImpl(connection);
     } catch (SQLException e) {
       throw new ServletException("Unable to initialize database connection", e);
+    }
+  }
+
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    resp.setContentType("application/json");
+    PrintWriter out = resp.getWriter();
+
+    try {
+      // Получение всех оценок из базы данных
+      List<JournalScore> scores = scoreDAO.getAllScores();
+      out.print(gson.toJson(scores));
+      resp.setStatus(HttpServletResponse.SC_OK);
+    } catch (SQLException e) {
+      resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error");
+      e.printStackTrace();
+    } finally {
+      out.flush();
     }
   }
 
