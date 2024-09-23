@@ -5,6 +5,7 @@ import com.example.jenkinsspring.dao.JournalScoreDAOImpl;
 import com.example.jenkinsspring.model.JournalParticipant;
 import com.example.jenkinsspring.model.JournalScore;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -79,20 +80,54 @@ public class JournalServlet extends HttpServlet {
 
     try {
       if (pathInfo == null || pathInfo.equals("/participants")) {
+        // Добавить нового участника
         BufferedReader reader = req.getReader();
         JournalParticipant participant = gson.fromJson(reader, JournalParticipant.class);
+
+        if (participant.getFirstName() == null || participant.getFirstName().isEmpty() ||
+            participant.getLastName() == null || participant.getLastName().isEmpty()) {
+          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required fields: firstName and lastName");
+          return;
+        }
+
         participantDAO.addParticipant(participant);
         out.print(gson.toJson("Participant added successfully"));
       } else if (pathInfo.startsWith("/participants/") && pathInfo.endsWith("/score")) {
-        int participantId = Integer.parseInt(pathInfo.split("/")[2]);
+        // Добавить или обновить оценку для участника
+        String[] parts = pathInfo.split("/");
+        if (parts.length != 4) {
+          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid URL format");
+          return;
+        }
+
+        int participantId;
+        try {
+          participantId = Integer.parseInt(parts[2]);
+        } catch (NumberFormatException e) {
+          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid participant ID");
+          return;
+        }
+
         BufferedReader reader = req.getReader();
         JournalScore score = gson.fromJson(reader, JournalScore.class);
+
+        if (score.getDate() == null) {
+          resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required field: date");
+          return;
+        }
+
         score.setParticipantId(participantId);
         scoreDAO.addOrUpdateScore(score);
         out.print(gson.toJson("Score added/updated successfully"));
+      } else {
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
       }
+    } catch (JsonSyntaxException e) {
+      resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid JSON format");
+      e.printStackTrace();
     } catch (SQLException e) {
       resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Database error");
+      e.printStackTrace();
     } finally {
       out.flush();
     }
