@@ -75,7 +75,7 @@ public class FrontControllerServlet extends HttpServlet {
    */
   private void initializeRoutes() {
     // Пример маршрутов
-    routes.put("GET:/api/users", this::handleGetAllUsers);
+    routes.put("GET:/users", this::handleGetAllUsers);
     routes.put("POST:/api/users", this::handleAddUser);
     routes.put("PUT:/api/users", this::handleUpdateUser);
     routes.put("DELETE:/api/users", this::handleDeleteUser);
