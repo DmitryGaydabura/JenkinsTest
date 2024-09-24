@@ -1,15 +1,15 @@
 package com.example.jenkinsspring.exception;
 
 /**
- * Исключение, выбрасываемое, когда пользователь не найден.
+ * Исключение, выбрасываемое, когда активность не найдена.
  */
-public class UserNotFoundException extends Exception {
+public class ActivityNotFoundException extends Exception {
   /**
    * Конструктор с сообщением об ошибке.
    *
    * @param message Сообщение об ошибке.
    */
-  public UserNotFoundException(String message) {
+  public ActivityNotFoundException(String message) {
     super(message);
   }
 
@@ -19,7 +19,7 @@ public class UserNotFoundException extends Exception {
    * @param message Сообщение об ошибке.
    * @param cause   Причина ошибки.
    */
-  public UserNotFoundException(String message, Throwable cause) {
+  public ActivityNotFoundException(String message, Throwable cause) {
     super(message, cause);
   }
 }

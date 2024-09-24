@@ -14,31 +14,85 @@
 					"name": "Get All Users",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/users",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "users"]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "Add User",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"age\": 30,\n    \"team\": \"TeamA\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/users",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "users"]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "Update User",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"firstName\": \"Jane\",\n    \"lastName\": \"Doe\",\n    \"age\": 28,\n    \"team\": \"TeamB\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/users",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "users"]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "Delete User",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/users?id=1",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "users"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
 					},
 					"response": []
 				}
@@ -51,31 +105,85 @@
 					"name": "Get All Activities",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/activities",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "activities"]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "Create New Activity",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"description\": \"Completed project milestone\",\n    \"activityDate\": \"2023-10-01T10:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/activities",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "activities"]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "Update Activity",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"userId\": 2,\n    \"description\": \"Updated project milestone\",\n    \"activityDate\": \"2023-10-02T12:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/activities",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "activities"]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "Delete Activity",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/activities?id=1",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "activities"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
 					},
 					"response": []
 				}
@@ -85,10 +193,62 @@
 			"name": "Telegram",
 			"item": [
 				{
-					"name": "New Request",
+					"name": "Send Telegram Document",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "chat_id",
+									"value": "123456789",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/activity_report.pdf"
+								},
+								{
+									"key": "caption",
+									"value": "Список активностей",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/telegram/send",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "telegram", "send"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Telegram Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"chatId\": \"123456789\",\n    \"message\": \"Hello from Postman!\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/telegram/send",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "telegram", "send"]
+						}
 					},
 					"response": []
 				}
@@ -98,23 +258,82 @@
 			"name": "Email",
 			"item": [
 				{
-					"name": "New Request",
+					"name": "Send Email with Attachment",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"recipient@example.com\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/email/send",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "email", "send"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Plain Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"recipient@example.com\",\n    \"subject\": \"Test Email\",\n    \"body\": \"This is a test email sent from Postman.\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/email/send",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "email", "send"]
+						}
 					},
 					"response": []
 				}
 			]
 		},
 		{
-			"name": "participants",
+			"name": "Participants",
 			"item": [
 				{
 					"name": "Add New Participant Into Team",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Alice\",\n    \"team\": \"TeamA\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/participants",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "participants"]
+						}
 					},
 					"response": []
 				},
@@ -122,23 +341,60 @@
 					"name": "Get Participants by Team",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/participants?team=TeamA",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "participants"],
+							"query": [
+								{
+									"key": "team",
+									"value": "TeamA"
+								}
+							]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "Generate Pairs",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/participants/generate-pairs",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "participants", "generate-pairs"]
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete Participant by id",
+					"name": "Delete Participant by ID",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/participants?id=1",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "participants"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
 					},
 					"response": []
 				}
@@ -151,23 +407,64 @@
 					"name": "Get all Participants",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/journal/participants",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "journal", "participants"]
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "Add new participant",
+					"name": "Add new Participant",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"participantId\": 1,\n    \"score\": \"5.5\",\n    \"date\": \"2023-10-01\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/journal/scores",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "journal", "scores"]
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "Add new score",
+					"name": "Add new Score",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"participantId\": 2,\n    \"score\": \"Н\",\n    \"date\": \"2023-10-02\"\n}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/journal/scores",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "journal", "scores"]
+						}
 					},
 					"response": []
 				},
@@ -175,23 +472,62 @@
 					"name": "Get Scores By Date",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/journal/scores?date=2023-10-01",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "journal", "scores"],
+							"query": [
+								{
+									"key": "date",
+									"value": "2023-10-01"
+								}
+							]
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete participant by ID",
+					"name": "Delete Participant by ID",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/journal/participants?id=1",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "journal", "participants"],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete scores by date",
+					"name": "Delete Scores by Date",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/journal/scores/delete?date=2023-10-01",
+							"protocol": "http",
+							"host": ["13.60.104.170"],
+							"port": "8080",
+							"path": ["myapp", "api", "journal", "scores", "delete"],
+							"query": [
+								{
+									"key": "date",
+									"value": "2023-10-01"
+								}
+							]
+						}
 					},
 					"response": []
 				}

@@ -50,7 +50,6 @@ public class ReportGenerator {
     for (Activity activity : activities) {
       table.addCell(new Cell().add(new Paragraph(String.valueOf(activity.getId()))));
       table.addCell(new Cell().add(new Paragraph(String.valueOf(activity.getUserId()))));
-      table.addCell(new Cell().add(new Paragraph(activity.getFirstName() + " " + activity.getLastName())));
       table.addCell(new Cell().add(new Paragraph(activity.getDescription())));
       table.addCell(new Cell().add(new Paragraph(sdf.format(activity.getActivityDate()))));
     }

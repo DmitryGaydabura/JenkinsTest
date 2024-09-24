@@ -1,32 +1,27 @@
 package com.example.jenkinsspring.model;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
+/**
+ * Модель активности.
+ */
 public class Activity {
   private Long id;
   private Long userId;
-  private String firstName;
-  private String lastName;
-
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
   private String description;
-  private Timestamp activityDate;
+  private Date activityDate;
 
+  // Конструкторы
+  public Activity() {}
+
+  public Activity(Long id, Long userId, String description, Date activityDate) {
+    this.id = id;
+    this.userId = userId;
+    this.description = description;
+    this.activityDate = activityDate;
+  }
+
+  // Геттеры и сеттеры
   public Long getId() {
     return id;
   }
@@ -51,13 +46,11 @@ public class Activity {
     this.description = description;
   }
 
-  public Timestamp getActivityDate() {
+  public Date getActivityDate() {
     return activityDate;
   }
 
-  public void setActivityDate(Timestamp activityDate) {
+  public void setActivityDate(Date activityDate) {
     this.activityDate = activityDate;
   }
-// Геттеры и сеттеры
 }
-

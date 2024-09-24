@@ -4,114 +4,17 @@
              http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
   version="3.1">
 
-
-  <!-- UserServlet для REST API -->
+  <!-- Определение FrontControllerServlet -->
   <servlet>
-    <servlet-name>UserApiServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.UserApiServlet</servlet-class>
+    <servlet-name>FrontControllerServlet</servlet-name>
+    <servlet-class>com.example.jenkinsspring.api.FrontControllerServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
   </servlet>
 
+  <!-- Маппинг FrontControllerServlet на URL-паттерн /api/* -->
   <servlet-mapping>
-    <servlet-name>UserApiServlet</servlet-name>
-    <url-pattern>/api/users/*</url-pattern>
-  </servlet-mapping>
-
-  <!-- ActivityServlet для REST API -->
-  <servlet>
-    <servlet-name>ActivityApiServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.ActivityApiServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>ActivityApiServlet</servlet-name>
-    <url-pattern>/api/activities/*</url-pattern>
-  </servlet-mapping>
-
-  <!-- TelegramSendServlet для отправки сообщений в Telegram -->
-  <servlet>
-    <servlet-name>TelegramSendServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.TelegramSendServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>TelegramSendServlet</servlet-name>
-    <url-pattern>/api/telegram/send</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>EmailSendServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.EmailSendServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>EmailSendServlet</servlet-name>
-    <url-pattern>/api/email/send</url-pattern>
-  </servlet-mapping>
-
-  <!-- AddParticipantServlet для добавления нового участника -->
-  <servlet>
-    <servlet-name>AddParticipantServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.AddParticipantServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>AddParticipantServlet</servlet-name>
-    <url-pattern>/api/participants</url-pattern>
-  </servlet-mapping>
-
-  <!-- GetParticipantsByTeamServlet для получения участников по команде -->
-  <servlet>
-    <servlet-name>GetParticipantsByTeamServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.GetParticipantsByTeamServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>GetParticipantsByTeamServlet</servlet-name>
-    <url-pattern>/api/teams/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>GetParticipantPairsServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.GetParticipantPairsServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>GetParticipantPairsServlet</servlet-name>
-    <url-pattern>/api/getPairs/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>JournalServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.JournalServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>JournalServlet</servlet-name>
-    <url-pattern>/api/journal/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>AddScoreServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.AddScoreServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>AddScoreServlet</servlet-name>
-    <url-pattern>/api/journal/participants/score/*</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>JournalScoresServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.JournalScoresServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>JournalScoresServlet</servlet-name>
-    <url-pattern>/api/journal/scores</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>DeleteScoresByDateServlet</servlet-name>
-    <servlet-class>com.example.jenkinsspring.api.DeleteScoresByDateServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>DeleteScoresByDateServlet</servlet-name>
-    <url-pattern>/api/journal/scores/delete</url-pattern>
+    <servlet-name>FrontControllerServlet</servlet-name>
+    <url-pattern>/api/*</url-pattern>
   </servlet-mapping>
 
 

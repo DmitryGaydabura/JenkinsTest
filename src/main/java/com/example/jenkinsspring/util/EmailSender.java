@@ -2,54 +2,75 @@ package com.example.jenkinsspring.util;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
-import java.io.IOException;
-import java.util.Properties;
 import java.io.File;
+import java.util.Properties;
 
+/**
+ * Утилита для отправки электронных писем.
+ */
 public class EmailSender {
+  private final String username;
+  private final String password;
+  private final Properties props;
 
-  public static void sendEmailWithAttachment(String toEmail, String subject, String body, String attachmentPath)
-      throws MessagingException, IOException {
-    // Настройки SMTP сервера
-    Properties props = new Properties();
-    props.put("mail.smtp.host", "smtp.gmail.com");
-    props.put("mail.smtp.port", "587"); // Порт для TLS
+  /**
+   * Конструктор, инициализирующий настройки почтового сервера.
+   */
+  public EmailSender() {
+    this.username = System.getenv("EMAIL_USERNAME");
+    this.password = System.getenv("EMAIL_PASSWORD");
+
+    props = new Properties();
     props.put("mail.smtp.auth", "true");
     props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.smtp.host", System.getenv("EMAIL_SMTP_HOST"));
+    props.put("mail.smtp.port", System.getenv("EMAIL_SMTP_PORT"));
+  }
 
-    // Учетные данные
-    final String username = "gaydabura.d1@gmail.com"; // Замените на ваш email
-    final String password = "urme vzso taig veia"; // Замените на ваш пароль приложения
+  /**
+   * Отправляет письмо с вложением.
+   *
+   * @param to          Получатель.
+   * @param subject     Тема письма.
+   * @param text        Текст письма.
+   * @param attachmentPath Путь к файлу вложения.
+   * @throws MessagingException Если возникает ошибка при отправке письма.
+   */
+  public void sendEmailWithAttachment(String to, String subject, String text, String attachmentPath) throws MessagingException {
+    Session session = Session.getInstance(props,
+        new jakarta.mail.Authenticator() {
+          protected PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication(username, password);
+          }
+        });
 
-    // Создание сессии
-    Session session = Session.getInstance(props, new Authenticator() {
-      protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(username, password);
-      }
-    });
-
-    // Создание сообщения
     Message message = new MimeMessage(session);
     message.setFrom(new InternetAddress(username));
-    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+    message.setRecipients(
+        Message.RecipientType.TO,
+        InternetAddress.parse(to)
+    );
     message.setSubject(subject);
 
-    // Тело сообщения
-    MimeBodyPart messageBodyPart = new MimeBodyPart();
-    messageBodyPart.setText(body);
+    // Создаем тело письма
+    MimeBodyPart mimeBodyPart = new MimeBodyPart();
+    mimeBodyPart.setText(text);
 
-    // Вложение
-    MimeBodyPart attachmentPart = new MimeBodyPart();
-    attachmentPart.attachFile(new File(attachmentPath));
+    // Создаем вложение
+    MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+    try {
+      attachmentBodyPart.attachFile(new File(attachmentPath));
+    } catch (Exception e) {
+      throw new MessagingException("Не удалось прикрепить файл: " + attachmentPath, e);
+    }
 
-    // Комбинируем части
+    // Объединяем тело и вложение
     Multipart multipart = new MimeMultipart();
-    multipart.addBodyPart(messageBodyPart);
-    multipart.addBodyPart(attachmentPart);
+    multipart.addBodyPart(mimeBodyPart);
+    multipart.addBodyPart(attachmentBodyPart);
 
     message.setContent(multipart);
 
-    // Отправка сообщения
     Transport.send(message);
   }
 }

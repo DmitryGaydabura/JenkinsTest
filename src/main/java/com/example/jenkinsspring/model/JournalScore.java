@@ -2,21 +2,24 @@ package com.example.jenkinsspring.model;
 
 import java.util.Date;
 
+/**
+ * Модель оценки в журнале.
+ */
 public class JournalScore {
-  private int id;
   private int participantId;
-  private int score;
+  private Object score; // Может быть String "Н" или Double от 0 до 6 с шагом 0.5
   private Date date;
 
-  // Getters and setters
-  public int getId() {
-    return id;
+  // Конструкторы
+  public JournalScore() {}
+
+  public JournalScore(int participantId, Object score, Date date) {
+    this.participantId = participantId;
+    this.score = score;
+    this.date = date;
   }
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
+  // Геттеры и сеттеры
   public int getParticipantId() {
     return participantId;
   }
@@ -25,11 +28,11 @@ public class JournalScore {
     this.participantId = participantId;
   }
 
-  public int getScore() {
+  public Object getScore() {
     return score;
   }
 
-  public void setScore(int score) {
+  public void setScore(Object score) {
     this.score = score;
   }
 
@@ -39,5 +42,20 @@ public class JournalScore {
 
   public void setDate(Date date) {
     this.date = date;
+  }
+
+  /**
+   * Проверяет, является ли оценка допустимой.
+   *
+   * @return true, если оценка допустима, иначе false.
+   */
+  public boolean isValidScore() {
+    if (score instanceof String) {
+      return "Н".equalsIgnoreCase((String) score);
+    } else if (score instanceof Double) {
+      Double doubleScore = (Double) score;
+      return doubleScore >= 0 && doubleScore <= 6 && (doubleScore * 2) % 1 == 0;
+    }
+    return false;
   }
 }

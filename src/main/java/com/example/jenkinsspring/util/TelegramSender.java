@@ -1,88 +1,77 @@
 package com.example.jenkinsspring.util;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
 import java.io.File;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import java.io.IOException;
 
-public class TelegramSender extends TelegramLongPollingBot {
-
+/**
+ * Утилита для отправки сообщений и документов в Telegram.
+ */
+public class TelegramSender {
   private final String botToken;
-  private final String botUsername;
-  private TelegramBotsApi botsApi;
 
-  public TelegramSender(String botToken, String botUsername) {
-    this.botToken = botToken;
-    this.botUsername = botUsername;
-  }
-
-  @Override
-  public String getBotUsername() {
-    return botUsername; // Имя вашего бота
-  }
-
-  @Override
-  public String getBotToken() {
-    return botToken; // Токен вашего бота
-  }
-
-  @Override
-  public void onUpdateReceived(org.telegram.telegrambots.meta.api.objects.Update update) {
-    // Этот бот предназначен только для отправки сообщений, поэтому мы не обрабатываем входящие обновления
+  /**
+   * Конструктор, инициализирующий токен бота.
+   */
+  public TelegramSender() {
+    this.botToken = System.getenv("TELEGRAM_BOT_TOKEN");
   }
 
   /**
-   * Метод для инициализации TelegramBotsApi и регистрации бота
+   * Отправляет документ в чат Telegram.
    *
-   * @throws TelegramApiException если происходит ошибка при регистрации бота
+   * @param chatId    ID чата.
+   * @param document  Файл документа.
+   * @param caption   Подпись к документу.
+   * @throws IOException Если возникает ошибка при отправке документа.
    */
-  public void initialize() throws TelegramApiException {
-    botsApi = new TelegramBotsApi(DefaultBotSession.class);
-    botsApi.registerBot(this);
+  public void sendDocument(String chatId, File document, String caption) throws IOException {
+    String url = "https://api.telegram.org/bot" + botToken + "/sendDocument";
+
+    HttpPost post = new HttpPost(url);
+
+    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+    builder.addTextBody("chat_id", chatId, ContentType.TEXT_PLAIN);
+    builder.addTextBody("caption", caption, ContentType.TEXT_PLAIN);
+    builder.addBinaryBody("document", document, ContentType.APPLICATION_OCTET_STREAM, document.getName());
+
+    HttpEntity multipart = builder.build();
+    post.setEntity(multipart);
+
+    try (CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpResponse response = httpClient.execute(post)) {
+      // Можно добавить обработку ответа, если необходимо
+    }
   }
 
   /**
-   * Метод для остановки бота
+   * Отправляет текстовое сообщение в чат Telegram.
    *
-   * @throws TelegramApiException если происходит ошибка при остановке бота
+   * @param chatId ID чата.
+   * @param message Текст сообщения.
+   * @throws IOException Если возникает ошибка при отправке сообщения.
    */
-  public void stop() throws TelegramApiException {
+  public void sendMessage(String chatId, String message) throws IOException {
+    String url = "https://api.telegram.org/bot" + botToken + "/sendMessage";
 
-  }
+    HttpPost post = new HttpPost(url);
+    MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+    builder.addTextBody("chat_id", chatId, ContentType.TEXT_PLAIN);
+    builder.addTextBody("text", message, ContentType.TEXT_PLAIN);
 
-  /**
-   * Метод для отправки текстового сообщения в Telegram
-   *
-   * @param chatId ID чата или пользователя
-   * @param text   Текст сообщения
-   * @throws TelegramApiException если происходит ошибка при отправке
-   */
-  public void sendMessage(String chatId, String text) throws TelegramApiException {
-    SendMessage sendMessage = new SendMessage();
-    sendMessage.setChatId(chatId);
-    sendMessage.setText(text);
+    HttpEntity multipart = builder.build();
+    post.setEntity(multipart);
 
-    execute(sendMessage);
-  }
-
-  /**
-   * Метод для отправки документа в Telegram
-   *
-   * @param chatId  ID чата или пользователя
-   * @param file    Файл для отправки
-   * @param caption Подпись к файлу
-   * @throws TelegramApiException если происходит ошибка при отправке
-   */
-  public void sendDocument(String chatId, File file, String caption) throws TelegramApiException {
-    SendDocument sendDocument = new SendDocument();
-    sendDocument.setChatId(chatId);
-    sendDocument.setDocument(new InputFile(file));
-    sendDocument.setCaption(caption);
-
-    execute(sendDocument);
+    try (CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpResponse response = httpClient.execute(post)) {
+      // Можно добавить обработку ответа, если необходимо
+    }
   }
 }

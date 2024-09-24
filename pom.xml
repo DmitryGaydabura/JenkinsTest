@@ -12,9 +12,8 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <java.version>17</java.version> <!-- или выше, например, 17 -->
+    <java.version>17</java.version>
   </properties>
-
 
   <dependencies>
     <!-- Servlet API -->
@@ -25,8 +24,6 @@
       <scope>provided</scope>
     </dependency>
 
-
-
     <!-- PostgreSQL JDBC Driver -->
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -34,6 +31,12 @@
       <version>42.7.4</version>
     </dependency>
 
+    <!-- HikariCP для пула соединений -->
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>5.0.1</version>
+    </dependency>
 
     <!-- iText для PDF -->
     <dependency>
@@ -61,25 +64,39 @@
       <version>6.9.7.1</version>
     </dependency>
 
+    <!-- Gson для работы с JSON -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>2.8.9</version>
     </dependency>
 
+    <!-- SLF4J и Logback для логирования -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>2.0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.4.8</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>4.5.13</version>
     </dependency>
-
-
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+      <version>4.5.13</version>
+    </dependency>
 
   </dependencies>
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -87,5 +104,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
