@@ -76,25 +76,25 @@ public class FrontControllerServlet extends HttpServlet {
   private void initializeRoutes() {
     // Пример маршрутов
     routes.put("GET:/users", this::handleGetAllUsers);
-    routes.put("POST:/api/users", this::handleAddUser);
-    routes.put("PUT:/api/users", this::handleUpdateUser);
-    routes.put("DELETE:/api/users", this::handleDeleteUser);
+    routes.put("POST:/users", this::handleAddUser);
+    routes.put("PUT:/users", this::handleUpdateUser);
+    routes.put("DELETE:/users", this::handleDeleteUser);
 
-    routes.put("GET:/api/activities", this::handleGetAllActivities);
-    routes.put("POST:/api/activities", this::handleAddActivity);
-    routes.put("PUT:/api/activities", this::handleUpdateActivity);
-    routes.put("DELETE:/api/activities", this::handleDeleteActivity);
+    routes.put("GET:/activities", this::handleGetAllActivities);
+    routes.put("POST:/activities", this::handleAddActivity);
+    routes.put("PUT:/activities", this::handleUpdateActivity);
+    routes.put("DELETE:/activities", this::handleDeleteActivity);
 
-    routes.put("GET:/api/participants", this::handleGetParticipantsByTeam);
-    routes.put("POST:/api/participants", this::handleAddParticipant);
-    routes.put("DELETE:/api/participants", this::handleDeleteParticipant);
+    routes.put("GET:/participants", this::handleGetParticipantsByTeam);
+    routes.put("POST:/participants", this::handleAddParticipant);
+    routes.put("DELETE:/participants", this::handleDeleteParticipant);
 
-    routes.put("POST:/api/journal/scores", this::handleAddScore);
-    routes.put("GET:/api/journal/scores", this::handleGetAllScores);
-    routes.put("DELETE:/api/journal/scores/delete", this::handleDeleteScoresByDate);
+    routes.put("POST:/journal/scores", this::handleAddScore);
+    routes.put("GET:/journal/scores", this::handleGetAllScores);
+    routes.put("DELETE:/journal/scores/delete", this::handleDeleteScoresByDate);
 
-    routes.put("POST:/api/email/send", this::handleSendEmail);
-    routes.put("POST:/api/telegram/send", this::handleSendTelegramMessage);
+    routes.put("POST:/email/send", this::handleSendEmail);
+    routes.put("POST:/telegram/send", this::handleSendTelegramMessage);
 
     // Добавьте дополнительные маршруты по необходимости
   }

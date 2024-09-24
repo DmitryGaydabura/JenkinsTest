@@ -15,14 +15,14 @@
   </servlet-mapping>
 
 
-<!--  <filter>-->
-<!--    <filter-name>CorsFilter</filter-name>-->
-<!--    <filter-class>com.example.jenkinsspring.filter.CorsFilter</filter-class>-->
-<!--  </filter>-->
-<!--  <filter-mapping>-->
-<!--    <filter-name>CorsFilter</filter-name>-->
-<!--    <url-pattern>/*</url-pattern>-->
-<!--  </filter-mapping>-->
+  <filter>
+    <filter-name>CorsFilter</filter-name>
+    <filter-class>com.example.jenkinsspring.filter.CorsFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
 
 
