@@ -1,5 +1,7 @@
 package com.example.jenkinsspring.api;
 
+import com.example.jenkinsspring.exception.InsufficientParticipantsException;
+import com.example.jenkinsspring.exception.PairGenerationException;
 import com.example.jenkinsspring.exception.ParticipantNotFoundException;
 import com.example.jenkinsspring.model.Activity;
 import com.example.jenkinsspring.model.JournalScore;
@@ -64,7 +66,7 @@ public class FrontControllerServlet extends HttpServlet {
       userService = new UserServiceImpl();
       activityService = new ActivityServiceImpl();
       participantService = new ParticipantServiceImpl();
-      pairService = new PairServiceImpl();
+      pairService = new PairServiceImpl(participantService);
       journalScoreService = new JournalScoreServiceImpl();
       telegramSender = new TelegramSender();
       emailSender = new EmailSender();
@@ -109,42 +111,8 @@ public class FrontControllerServlet extends HttpServlet {
 
   private void handleGeneratePairs(HttpServletRequest req, HttpServletResponse resp) {
     try {
-      // Получение участников обеих команд
-      List<Participant> blueParticipants = participantService.getParticipantsByTeam("blue");
-      List<Participant> yellowParticipants = participantService.getParticipantsByTeam("yellow");
-
-      if (blueParticipants.isEmpty() || yellowParticipants.isEmpty()) {
-        sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Недостаточно участников в одной из команд для формирования пар.");
-        return;
-      }
-
-      List<Pair> existingPairs = pairService.getAllPairs();
-
-      List<Pair> newPairs = new ArrayList<>();
-      List<Participant> availableYellow = new ArrayList<>(yellowParticipants);
-
-      for (Participant blue : blueParticipants) {
-        Participant pairedYellow = null;
-        for (Participant yellow : availableYellow) {
-          if (!pairService.isPairExists( blue.getId(), yellow.getId())) {
-            pairedYellow = yellow;
-            break;
-          }
-        }
-        if (pairedYellow != null) {
-          Pair pair = new Pair(blue.getId(), pairedYellow.getId());
-          newPairs.add(pair);
-          availableYellow.remove(pairedYellow); // Удаляем, чтобы избежать повторения в текущей генерации
-        }
-      }
-
-      if (newPairs.isEmpty()) {
-        sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Не удалось сформировать новые пары. Все возможные пары уже существуют.");
-        return;
-      }
-
-      // Сохранение новых пар
-      pairService.savePairs(newPairs);
+      // Вызов бизнес-логики из сервисного слоя
+      List<Pair> newPairs = pairService.generatePairs();
 
       // Подготовка ответа
       List<Map<String, Object>> responsePairs = new ArrayList<>();
@@ -156,7 +124,8 @@ public class FrontControllerServlet extends HttpServlet {
       }
 
       sendJsonResponse(resp, responsePairs, HttpServletResponse.SC_OK);
-
+    } catch (InsufficientParticipantsException | PairGenerationException e) {
+      sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
     } catch (Exception e) {
       e.printStackTrace();
       sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ошибка при генерации пар.");
