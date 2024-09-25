@@ -69,7 +69,7 @@ public class ParticipantDAOImpl implements ParticipantDAO {
 
   @Override
   public Participant getParticipantById(int participantId) throws SQLException {
-    String sql = "SELECT id, name, team FROM participants WHERE id = ? AND deleted = false";
+    String sql = "SELECT id, name, team, deleted FROM participants WHERE id = ?";
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
       stmt.setInt(1, participantId);
       try (ResultSet rs = stmt.executeQuery()) {
@@ -137,6 +137,8 @@ public class ParticipantDAOImpl implements ParticipantDAO {
     participant.setId(rs.getInt("id"));
     participant.setName(rs.getString("name"));
     participant.setTeam(rs.getString("team"));
+    participant.setDeleted(rs.getBoolean("deleted")); // Добавьте эту строку
     return participant;
   }
+
 }

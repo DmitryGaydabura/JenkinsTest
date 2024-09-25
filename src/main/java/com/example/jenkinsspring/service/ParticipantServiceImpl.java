@@ -33,22 +33,18 @@ public class ParticipantServiceImpl implements ParticipantService {
       connection.setAutoCommit(false);
       participantDAO = new ParticipantDAOImpl(connection);
 
-      // Проверяем, существует ли участник с таким же именем
       Participant existingParticipant = participantDAO.getParticipantByName(participant.getName());
       if (existingParticipant != null) {
         if (existingParticipant.isDeleted()) {
-          // Участник помечен как удаленный, восстанавливаем его
-          participantDAO.restoreParticipant(existingParticipant.getId());
-          // Обновляем данные участника
+          // Восстанавливаем участника
           existingParticipant.setTeam(participant.getTeam());
+          existingParticipant.setDeleted(false); // Устанавливаем deleted в false
           participantDAO.updateParticipant(existingParticipant);
           participant.setId(existingParticipant.getId());
         } else {
-          // Участник уже существует и не помечен как удаленный
           throw new ParticipantAlreadyExistsException("Участник с именем " + participant.getName() + " уже существует.");
         }
       } else {
-        // Участник не существует, добавляем нового
         participantDAO.addParticipant(participant);
       }
 
@@ -57,6 +53,7 @@ public class ParticipantServiceImpl implements ParticipantService {
       throw e;
     }
   }
+
 
 
   @Override
