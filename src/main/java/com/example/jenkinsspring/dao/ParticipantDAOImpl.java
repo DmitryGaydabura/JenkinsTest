@@ -41,7 +41,7 @@ public class ParticipantDAOImpl implements ParticipantDAO {
 
   @Override
   public List<Participant> getParticipantsByTeam(String team) throws SQLException {
-    String sql = "SELECT id, name, team FROM participants WHERE team = ? AND deleted = false";
+    String sql = "SELECT id, name, team, deleted FROM participants WHERE team = ? AND deleted = false";
     List<Participant> participants = new ArrayList<>();
     try (PreparedStatement stmt = connection.prepareStatement(sql)) {
       stmt.setString(1, team);
@@ -54,6 +54,7 @@ public class ParticipantDAOImpl implements ParticipantDAO {
     }
     return participants;
   }
+
 
   @Override
   public void softDeleteParticipant(int participantId) throws SQLException {
@@ -137,8 +138,9 @@ public class ParticipantDAOImpl implements ParticipantDAO {
     participant.setId(rs.getInt("id"));
     participant.setName(rs.getString("name"));
     participant.setTeam(rs.getString("team"));
-    participant.setDeleted(rs.getBoolean("deleted")); // Добавьте эту строку
+    participant.setDeleted(rs.getBoolean("deleted"));
     return participant;
   }
+
 
 }
