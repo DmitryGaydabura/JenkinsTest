@@ -86,8 +86,8 @@ public class JournalScoreDAOImpl implements JournalScoreDAO {
     JournalScore score = new JournalScore();
     score.setParticipantId(rs.getInt("participant_id"));
     String scoreStr = rs.getString("score");
-    if (scoreStr.equalsIgnoreCase("Н")) {
-      score.setScore("Н");
+    if (scoreStr.equalsIgnoreCase("N")) {
+      score.setScore("N");
     } else {
       score.setScore(Double.parseDouble(scoreStr));
     }
