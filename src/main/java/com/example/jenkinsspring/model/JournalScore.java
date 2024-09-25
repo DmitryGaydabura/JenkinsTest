@@ -51,7 +51,7 @@ public class JournalScore {
    */
   public boolean isValidScore() {
     if (score instanceof String) {
-      return "Н".equalsIgnoreCase((String) score);
+      return "N".equalsIgnoreCase((String) score);
     } else if (score instanceof Double) {
       Double doubleScore = (Double) score;
       return doubleScore >= 0 && doubleScore <= 6 && (doubleScore * 2) % 1 == 0;
