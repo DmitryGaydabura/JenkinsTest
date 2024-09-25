@@ -3,12 +3,15 @@ package com.example.jenkinsspring.api;
 import com.example.jenkinsspring.exception.ParticipantNotFoundException;
 import com.example.jenkinsspring.model.Activity;
 import com.example.jenkinsspring.model.JournalScore;
+import com.example.jenkinsspring.model.Pair;
 import com.example.jenkinsspring.model.Participant;
 import com.example.jenkinsspring.model.User;
 import com.example.jenkinsspring.service.ActivityService;
 import com.example.jenkinsspring.service.ActivityServiceImpl;
 import com.example.jenkinsspring.service.JournalScoreService;
 import com.example.jenkinsspring.service.JournalScoreServiceImpl;
+import com.example.jenkinsspring.service.PairService;
+import com.example.jenkinsspring.service.PairServiceImpl;
 import com.example.jenkinsspring.service.ParticipantService;
 import com.example.jenkinsspring.service.ParticipantServiceImpl;
 import com.example.jenkinsspring.service.UserService;
@@ -21,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +50,8 @@ public class FrontControllerServlet extends HttpServlet {
   private ActivityService activityService;
   private ParticipantService participantService;
   private JournalScoreService journalScoreService;
+
+  private PairService pairService;
   private TelegramSender telegramSender;
   private EmailSender emailSender;
 
@@ -58,6 +64,7 @@ public class FrontControllerServlet extends HttpServlet {
       userService = new UserServiceImpl();
       activityService = new ActivityServiceImpl();
       participantService = new ParticipantServiceImpl();
+      pairService = new PairServiceImpl();
       journalScoreService = new JournalScoreServiceImpl();
       telegramSender = new TelegramSender();
       emailSender = new EmailSender();
@@ -88,6 +95,7 @@ public class FrontControllerServlet extends HttpServlet {
     routes.put("GET:/participants", this::handleGetParticipantsByTeam);
     routes.put("POST:/participants", this::handleAddParticipant);
     routes.put("DELETE:/participants", this::handleDeleteParticipant);
+    routes.put("POST:/participants/generate-pairs", this::handleGeneratePairs);
 
     routes.put("POST:/journal/scores", this::handleAddScore);
     routes.put("GET:/journal/scores", this::handleGetAllScores);
@@ -98,6 +106,63 @@ public class FrontControllerServlet extends HttpServlet {
 
     // Добавьте дополнительные маршруты по необходимости
   }
+
+  private void handleGeneratePairs(HttpServletRequest req, HttpServletResponse resp) {
+    try {
+      // Получение участников обеих команд
+      List<Participant> blueParticipants = participantService.getParticipantsByTeam("blue");
+      List<Participant> yellowParticipants = participantService.getParticipantsByTeam("yellow");
+
+      if (blueParticipants.isEmpty() || yellowParticipants.isEmpty()) {
+        sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Недостаточно участников в одной из команд для формирования пар.");
+        return;
+      }
+
+      List<Pair> existingPairs = pairService.getAllPairs();
+
+      List<Pair> newPairs = new ArrayList<>();
+      List<Participant> availableYellow = new ArrayList<>(yellowParticipants);
+
+      for (Participant blue : blueParticipants) {
+        Participant pairedYellow = null;
+        for (Participant yellow : availableYellow) {
+          if (!pairService.isPairExists( blue.getId(), yellow.getId())) {
+            pairedYellow = yellow;
+            break;
+          }
+        }
+        if (pairedYellow != null) {
+          Pair pair = new Pair(blue.getId(), pairedYellow.getId());
+          newPairs.add(pair);
+          availableYellow.remove(pairedYellow); // Удаляем, чтобы избежать повторения в текущей генерации
+        }
+      }
+
+      if (newPairs.isEmpty()) {
+        sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Не удалось сформировать новые пары. Все возможные пары уже существуют.");
+        return;
+      }
+
+      // Сохранение новых пар
+      pairService.savePairs(newPairs);
+
+      // Подготовка ответа
+      List<Map<String, Object>> responsePairs = new ArrayList<>();
+      for (Pair pair : newPairs) {
+        Map<String, Object> pairMap = new HashMap<>();
+        pairMap.put("blueParticipantId", pair.getBlueParticipantId());
+        pairMap.put("yellowParticipantId", pair.getYellowParticipantId());
+        responsePairs.add(pairMap);
+      }
+
+      sendJsonResponse(resp, responsePairs, HttpServletResponse.SC_OK);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ошибка при генерации пар.");
+    }
+  }
+
 
   @Override
   protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
