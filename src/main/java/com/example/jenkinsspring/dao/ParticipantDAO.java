@@ -9,6 +9,7 @@ import java.util.List;
  * Интерфейс для операций с участниками в базе данных.
  */
 public interface ParticipantDAO {
+
   /**
    * Добавляет нового участника в базу данных.
    *
@@ -59,4 +60,9 @@ public interface ParticipantDAO {
    * @throws SQLException Если возникает ошибка при доступе к базе данных.
    */
   void restoreParticipant(int participantId) throws SQLException;
+
+
+  void updateParticipant(Participant participant) throws SQLException;
+
+
 }

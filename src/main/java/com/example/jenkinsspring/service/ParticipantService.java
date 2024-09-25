@@ -1,8 +1,8 @@
 package com.example.jenkinsspring.service;
 
-import com.example.jenkinsspring.model.Participant;
+import com.example.jenkinsspring.exception.ParticipantAlreadyExistsException;
 import com.example.jenkinsspring.exception.ParticipantNotFoundException;
-
+import com.example.jenkinsspring.model.Participant;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface ParticipantService {
    * @param participant Объект участника для добавления.
    * @throws SQLException если возникает ошибка при доступе к базе данных.
    */
-  void addParticipant(Participant participant) throws SQLException;
+  void addParticipant(Participant participant) throws SQLException, ParticipantAlreadyExistsException;
 
   /**
    * Получает список участников по команде.

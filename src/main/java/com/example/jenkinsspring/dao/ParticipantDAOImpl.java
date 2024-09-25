@@ -109,6 +109,22 @@ public class ParticipantDAOImpl implements ParticipantDAO {
     }
   }
 
+  @Override
+  public void updateParticipant(Participant participant) throws SQLException {
+    String sql = "UPDATE participants SET name = ?, team = ?, deleted = ? WHERE id = ?";
+    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+      stmt.setString(1, participant.getName());
+      stmt.setString(2, participant.getTeam());
+      stmt.setBoolean(3, participant.isDeleted());
+      stmt.setInt(4, participant.getId());
+      int affectedRows = stmt.executeUpdate();
+      if (affectedRows == 0) {
+        throw new SQLException("Обновление участника не удалось, нет затронутых строк.");
+      }
+    }
+  }
+
+
   /**
    * Преобразует строку результата запроса в объект Participant.
    *

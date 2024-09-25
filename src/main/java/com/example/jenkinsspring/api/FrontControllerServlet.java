@@ -2,6 +2,7 @@ package com.example.jenkinsspring.api;
 
 import com.example.jenkinsspring.exception.InsufficientParticipantsException;
 import com.example.jenkinsspring.exception.PairGenerationException;
+import com.example.jenkinsspring.exception.ParticipantAlreadyExistsException;
 import com.example.jenkinsspring.exception.ParticipantNotFoundException;
 import com.example.jenkinsspring.model.Activity;
 import com.example.jenkinsspring.model.JournalScore;
@@ -299,12 +300,15 @@ public class FrontControllerServlet extends HttpServlet {
       Participant participant = parseRequestBody(req, Participant.class);
       participantService.addParticipant(participant);
       sendJsonResponse(resp, participant, HttpServletResponse.SC_CREATED);
+    } catch (ParticipantAlreadyExistsException e) {
+      sendError(resp, HttpServletResponse.SC_CONFLICT, e.getMessage());
     } catch (JsonSyntaxException e) {
       sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Некорректный формат JSON");
     } catch (Exception e) {
       sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ошибка при добавлении участника");
     }
   }
+
 
   /**
    * Обработчик для удаления участника.
@@ -321,10 +325,8 @@ public class FrontControllerServlet extends HttpServlet {
       }
       int participantId = Integer.parseInt(participantIdStr);
 
-      // Вызов метода без присваивания результата
       participantService.softDeleteParticipant(participantId);
 
-      // Если метод завершился без исключений, отправляем успешный ответ
       sendJsonResponse(resp, new ApiResponse("Участник успешно удален"));
     } catch (NumberFormatException e) {
       sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Некорректный формат ID участника");
@@ -334,6 +336,7 @@ public class FrontControllerServlet extends HttpServlet {
       sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ошибка при удалении участника");
     }
   }
+
 
 
   /**

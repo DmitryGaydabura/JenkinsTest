@@ -2,10 +2,10 @@ package com.example.jenkinsspring.service;
 
 import com.example.jenkinsspring.dao.ParticipantDAO;
 import com.example.jenkinsspring.dao.ParticipantDAOImpl;
+import com.example.jenkinsspring.exception.ParticipantAlreadyExistsException;
 import com.example.jenkinsspring.exception.ParticipantNotFoundException;
 import com.example.jenkinsspring.model.Participant;
 import com.example.jenkinsspring.util.DataSourceManager;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -28,16 +28,36 @@ public class ParticipantServiceImpl implements ParticipantService {
   }
 
   @Override
-  public void addParticipant(Participant participant) throws SQLException {
+  public void addParticipant(Participant participant) throws SQLException, ParticipantAlreadyExistsException {
     try (Connection connection = DataSourceManager.getDataSource().getConnection()) {
       connection.setAutoCommit(false);
       participantDAO = new ParticipantDAOImpl(connection);
-      participantDAO.addParticipant(participant);
+
+      // Проверяем, существует ли участник с таким же именем
+      Participant existingParticipant = participantDAO.getParticipantByName(participant.getName());
+      if (existingParticipant != null) {
+        if (existingParticipant.isDeleted()) {
+          // Участник помечен как удаленный, восстанавливаем его
+          participantDAO.restoreParticipant(existingParticipant.getId());
+          // Обновляем данные участника
+          existingParticipant.setTeam(participant.getTeam());
+          participantDAO.updateParticipant(existingParticipant);
+          participant.setId(existingParticipant.getId());
+        } else {
+          // Участник уже существует и не помечен как удаленный
+          throw new ParticipantAlreadyExistsException("Участник с именем " + participant.getName() + " уже существует.");
+        }
+      } else {
+        // Участник не существует, добавляем нового
+        participantDAO.addParticipant(participant);
+      }
+
       connection.commit();
     } catch (SQLException e) {
       throw e;
     }
   }
+
 
   @Override
   public List<Participant> getParticipantsByTeam(String team) throws SQLException {
@@ -64,6 +84,7 @@ public class ParticipantServiceImpl implements ParticipantService {
       throw e;
     }
   }
+
 
   @Override
   public Participant restoreParticipantByName(String name) throws SQLException, ParticipantNotFoundException {
