@@ -13,7 +13,7 @@ public class CorsFilter implements Filter {
     HttpServletResponse response = (HttpServletResponse) res;
 
     // Разрешаем все домены (*), можно ограничить конкретными доменами
-    response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");  // Замените на нужный домен или оставьте "*", если не требуется куки
+    response.setHeader("Access-Control-Allow-Origin", "*");  // Замените на нужный домен или оставьте "*", если не требуется куки
     response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
     response.setHeader("Access-Control-Max-Age", "3600"); // Кэширование preflight-запросов
     response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");

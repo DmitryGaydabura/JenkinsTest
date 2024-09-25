@@ -45,10 +45,8 @@ public class FrontControllerServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private Gson gson = new Gson();
 
-  // Карта маршрутов: ключ - комбинация HTTP метода и пути, значение - обработчик
   private Map<String, BiConsumer<HttpServletRequest, HttpServletResponse>> routes = new HashMap<>();
 
-  // Сервисные компоненты
   private UserService userService;
   private ActivityService activityService;
   private ParticipantService participantService;
