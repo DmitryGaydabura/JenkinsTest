@@ -357,6 +357,35 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Generate Pairs",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "http://13.60.104.170:8080/myapp/api/participants/generate-pairs",
+							"protocol": "http",
+							"host": [
+								"13",
+								"60",
+								"104",
+								"170"
+							],
+							"port": "8080",
+							"path": [
+								"myapp",
+								"api",
+								"participants",
+								"generate-pairs"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -610,135 +639,6 @@
 								"api",
 								"telegram",
 								"send"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Participants",
-			"item": [
-				{
-					"name": "Add New Participant Into Team",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Alice\",\n    \"team\": \"TeamA\"\n}"
-						},
-						"url": {
-							"raw": "http://13.60.104.170:8080/myapp/api/participants",
-							"protocol": "http",
-							"host": [
-								"13",
-								"60",
-								"104",
-								"170"
-							],
-							"port": "8080",
-							"path": [
-								"myapp",
-								"api",
-								"participants"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Participants by Team",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://13.60.104.170:8080/myapp/api/participants?team=TeamA",
-							"protocol": "http",
-							"host": [
-								"13",
-								"60",
-								"104",
-								"170"
-							],
-							"port": "8080",
-							"path": [
-								"myapp",
-								"api",
-								"participants"
-							],
-							"query": [
-								{
-									"key": "team",
-									"value": "TeamA"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Generate Pairs",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{}"
-						},
-						"url": {
-							"raw": "http://13.60.104.170:8080/myapp/api/participants/generate-pairs",
-							"protocol": "http",
-							"host": [
-								"13",
-								"60",
-								"104",
-								"170"
-							],
-							"port": "8080",
-							"path": [
-								"myapp",
-								"api",
-								"participants",
-								"generate-pairs"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Participant by ID",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://13.60.104.170:8080/myapp/api/journal/participants?id=1",
-							"protocol": "http",
-							"host": [
-								"13",
-								"60",
-								"104",
-								"170"
-							],
-							"port": "8080",
-							"path": [
-								"myapp",
-								"api",
-								"journal",
-								"participants"
-							],
-							"query": [
-								{
-									"key": "id",
-									"value": "1"
-								}
 							]
 						}
 					},
